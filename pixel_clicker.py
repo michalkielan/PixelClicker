@@ -5,8 +5,6 @@ import sys
 import cv2
 
 class ImageProcessing:
-  """ImageProcessing class for image processing """
-
   def __init__(self, filename):
     self.filename = filename
     self.img = cv2.imread(self.filename)

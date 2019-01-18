@@ -33,7 +33,7 @@ class ImageProcessing:
 
 def main():
   if len(sys.argv) < 2:
-    print('Specify image name: ./PixelClicker.py image_file.jpg')
+    print('Specify image name: ./pixel_clicker.py image_file.jpg')
   else:
     img_filename = sys.argv[1]
     print('Filename: ', img_filename)

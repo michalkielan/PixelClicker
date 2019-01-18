@@ -6,4 +6,4 @@ install:
   - pip install pylint opencv-python
 
 script:
-  - pylint PixelClicker.py
+  - pylint --extension-pkg-whitelist=cv2 pixel_clicker.py

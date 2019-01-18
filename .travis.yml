@@ -6,4 +6,4 @@ install:
   - pip install pylint
 
 script:
-  - pylint
+  - pylint PixelClicker.py

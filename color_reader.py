@@ -7,6 +7,9 @@ import sys
 import os
 import cv2
 
+drawing=False # true if mouse is pressed
+mode=True # if True, draw rectangle. Press 'm' to toggle to curve
+
 class ColorReader(metaclass=abc.ABCMeta):
   def __init__(self, filename):
     self.__filename = filename
@@ -36,18 +39,18 @@ class ColorReader(metaclass=abc.ABCMeta):
     elif event==cv2.EVENT_MOUSEMOVE:
       if drawing==True:
         if mode==True:
-          cv2.rectangle(self.img,(ix,iy),(x,y),(0,0,255),10)
-     #     cv2.imshow(self.filename, self.img)
+          cv2.rectangle(self._img,(ix,iy),(x,y),(0,0,255),10)
+          cv2.imshow(self.__window, self._img)
 
     elif event==cv2.EVENT_LBUTTONUP:
       drawing=False
       if mode==True:
-        cv2.rectangle(self.img,(ix,iy),(x,y),(0,0,255),10)
-    #    cv2.imshow(self.filename, self.img)
+        cv2.rectangle(self._img,(ix,iy),(x,y),(0,0,255),10)
+        cv2.imshow(self.__window, self._img)
 
 
   def processing(self):
-    cv2.imshow(self.__filename, self._img)
+    cv2.imshow(self.__window, self._img)
     cv2.setMouseCallback(self.__window, self.__on_mouse_event)
     while True:
       pressedkey = cv2.waitKey(100)

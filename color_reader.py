@@ -20,9 +20,31 @@ class ColorReader(metaclass=abc.ABCMeta):
   def __mouse_event_processing(self, pos):
     self._read_colors(pos)
 
-  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
-    if event == cv2.EVENT_LBUTTONDOWN:
-      self.__mouse_event_processing((pos_x, pos_y))
+#  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
+#    if event == cv2.EVENT_LBUTTONDOWN:
+#      self.__mouse_event_processing((pos_x, pos_y))
+
+  def __on_mouse_event(self, event, x, y, flags, param):
+  #  if event == cv2.EVENT_LBUTTONDOWN:
+  #     self.__mouseEventProcessing__(x, y)
+    global ix,iy,drawing, mode
+
+    if event==cv2.EVENT_LBUTTONDOWN:
+      drawing=True
+      ix,iy=x,y
+
+    elif event==cv2.EVENT_MOUSEMOVE:
+      if drawing==True:
+        if mode==True:
+          cv2.rectangle(self.img,(ix,iy),(x,y),(0,0,255),10)
+     #     cv2.imshow(self.filename, self.img)
+
+    elif event==cv2.EVENT_LBUTTONUP:
+      drawing=False
+      if mode==True:
+        cv2.rectangle(self.img,(ix,iy),(x,y),(0,0,255),10)
+    #    cv2.imshow(self.filename, self.img)
+
 
   def processing(self):
     cv2.imshow(self.__filename, self._img)

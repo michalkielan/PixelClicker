@@ -9,19 +9,6 @@ from pymouse import PyMouse
 from PIL import Image, ImageDraw
 from xvfbwrapper import Xvfb
 
-import unittest
-import colorscope
-import threading
-import sys
-import pytest
-import unittest
-
-from _pytest.capture import capsys
-from time import sleep
-from pymouse import PyMouse
-from xvfbwrapper import Xvfb
-from io import StringIO
-
 
 class FakeKeyboard:
   def __init__(self):
@@ -38,6 +25,7 @@ class FakeMouse:
   def click(self, x, y):
     self.__mouse.move(x, y)
     self.__mouse.click(x, y)
+
 
 class Resources:
   def __init__(self):

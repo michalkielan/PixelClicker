@@ -57,8 +57,6 @@ class TestColorscope(unittest.TestCase):
 
     with self.assertRaises(AttributeError):
       colorscope.make_color_reader('', '')
-
-    with self.assertRaises(AttributeError):
       colorscope.make_color_reader('invalid', '')
 
   def test_colorscope_instances(self):
@@ -113,6 +111,16 @@ class TestColorscope(unittest.TestCase):
      self.assertEqual([r, g, b] , [0, 0, 0])
      self.assertEqual([y, u, v] , [0, 128, 128])
 
+  def test_main(self):
+     self.assertEqual(0, os.system('python colorscope.py -h'))
+     self.assertNotEqual(0, os.system('python colorscope.py -i invalid.png'))
+     self.assertNotEqual(0, os.system('python colorscope.py -i red.png -f=invalid'))
+     self.assertNotEqual(0, os.system('python colorscope.py -i '))
+
+     self.assertEqual(0, os.system('python colorscope.py --help'))
+     self.assertNotEqual(0, os.system('python colorscope.py --imgfile invalid.png'))
+     self.assertNotEqual(0, os.system('python colorscope.py --imgfile red.png --format=invalid'))
+     self.assertNotEqual(0, os.system('python colorscope.py --imgfile '))
 
 if __name__ == '__main__':
   unittest.main()

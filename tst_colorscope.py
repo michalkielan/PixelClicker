@@ -1,12 +1,10 @@
-import sys
 import unittest
 import colorscope
 from xvfbwrapper import Xvfb
 
-sys.path.append('../')
-
 class Resources:
   img_00_path = 'res/test_img/pallete_00.jpg'
+
 
 res = Resources()
 
@@ -32,6 +30,7 @@ class TestColorScope(unittest.TestCase):
 
     with self.assertRaises(TypeError):
       csINV = colorscope.ColorReader(res.img_00_path)
+
 
 if __name__ == '__main__':
   unittest.main()

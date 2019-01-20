@@ -1,8 +1,41 @@
 import unittest
 import colorscope
+import threading
 import os
+
+from time import sleep
+from pykeyboard import PyKeyboard
+from pymouse import PyMouse
 from PIL import Image, ImageDraw
 from xvfbwrapper import Xvfb
+
+import unittest
+import colorscope
+import threading
+import sys
+import pytest
+import unittest
+
+from _pytest.capture import capsys
+from time import sleep
+from pymouse import PyMouse
+from xvfbwrapper import Xvfb
+from io import StringIO
+
+
+class FakeKeyboard:
+  def __init__(self):
+    self.__keyboard = PyKeyboard()
+  def press(self, key_code):
+    self.__keyboard.tap_key('q')
+
+
+class FakeMouse:
+  def __init__(self):
+    self.__mouse = PyMouse()
+  def click(self, x, y):
+    self.__mouse.move(x, y)
+    self.__mouse.click(x, y)
 
 class Resources:
   def __init__(self):
@@ -111,16 +144,50 @@ class TestColorscope(unittest.TestCase):
      self.assertEqual([r, g, b] , [0, 0, 0])
      self.assertEqual([y, u, v] , [0, 128, 128])
 
-  def test_main(self):
-     self.assertEqual(0, os.system('python colorscope.py -h'))
-     self.assertNotEqual(0, os.system('python colorscope.py -i invalid.png'))
-     self.assertNotEqual(0, os.system('python colorscope.py -i red.png -f=invalid'))
-     self.assertNotEqual(0, os.system('python colorscope.py -i '))
+  def click_thread(self):
+    m = PyMouse()
+    x, y = [115, 115]
+    while True:
+      m.click(x, y)
+      print('aaa5')
+      sleep(1)
+      print('aaa6')
 
-     self.assertEqual(0, os.system('python colorscope.py --help'))
-     self.assertNotEqual(0, os.system('python colorscope.py --imgfile invalid.png'))
-     self.assertNotEqual(0, os.system('python colorscope.py --imgfile red.png --format=invalid'))
-     self.assertNotEqual(0, os.system('python colorscope.py --imgfile '))
+  def testPrintColors(self):
+    clicker = threading.Thread(target=self.click_thread)
+    clicker.start()
+    csRGB = colorscope.ColorReaderRGB(self.res.red)
+    csRGB.processing()
+    clicker.join()
 
+
+
+#  def close_window(self):
+#     fake_keyboard = FakeKeyboard()
+#     fake_mouse = FakeMouse()
+#     sleep(3)
+#     fake_mouse.click(115, 115)
+#     fake_keyboard.press(27)
+#     print('key pressed')
+#
+#  def test_processing(self):
+#     window_closer = threading.Thread(target=self.close_window)
+#     window_closer.start()
+#     img_file = self.res.red
+#     cr = colorscope.ColorReaderRGB(img_file)
+#     cr.processing()
+#     window_closer.join()
+
+#  def test_main(self):
+#     self.assertEqual(0, os.system('python colorscope.py -h'))
+#     self.assertNotEqual(0, os.system('python colorscope.py -i invalid.png'))
+#     self.assertNotEqual(0, os.system('python colorscope.py -i red.png -f=invalid'))
+#     self.assertNotEqual(0, os.system('python colorscope.py -i '))
+#
+#     self.assertEqual(0, os.system('python colorscope.py --help'))
+#     self.assertNotEqual(0, os.system('python colorscope.py --imgfile invalid.png'))
+#     self.assertNotEqual(0, os.system('python colorscope.py --imgfile red.png --format=invalid'))
+#     self.assertNotEqual(0, os.system('python colorscope.py --imgfile '))
+#
 if __name__ == '__main__':
   unittest.main()

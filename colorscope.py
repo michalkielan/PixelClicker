@@ -19,7 +19,7 @@ class ColorReader(metaclass=abc.ABCMeta):
 
   def __mouse_event_processing(self, pos):
     color = self._read_colors(pos)
-    print(color[0], '\t',color[1], '\t',color[2])
+    print(color[0], '\t', color[1], '\t', color[2])
 
   def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
     del flags, param

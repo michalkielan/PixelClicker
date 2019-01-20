@@ -31,7 +31,6 @@ class ColorReader(metaclass=abc.ABCMeta):
     cv2.setMouseCallback(self.__window, self.__on_mouse_event)
     while True:
       pressedkey = cv2.waitKey(100)
-      print(pressedkey)
       if pressedkey == 27:
         cv2.destroyAllWindows()
         break

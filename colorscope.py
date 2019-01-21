@@ -5,8 +5,8 @@ import abc
 import argparse
 import sys
 import os
+import statistics
 import cv2
-import numpy as np
 
 
 class MouseRectDrawer():
@@ -45,29 +45,18 @@ class ColorReader(metaclass = abc.ABCMeta):
     self.__rect = [[0, 0], [0, 0]]
 
   @abc.abstractmethod
-  def _read_pixel_color(self, pos):
+  def _calc_roi_color(self, img_roi):
     pass
 
   def __read_rect_color(self, rect):
-    p1_x = rect[0][0]
-    p1_y = rect[0][1]
-    p2_x = rect[1][0]
-    p2_y = rect[1][1]
+    p1_x, p1_y = [rect[0][0], rect[0][1]]
+    p2_x, p2_y = [rect[1][0], rect[1][1]]
 
     min_x, min_y = [min(p1_x, p2_x), min(p1_y, p2_y)] 
     max_x, max_y = [max(p1_x, p2_x), max(p1_y, p2_y)] 
 
     roi = self._img[min_y:max_y, min_x:max_x]
-    
-    cv2.imshow('window2', roi)
-
-  def __filer(self, rect):
-    # to be implemented: average, median etc.
-    return [255, 0, 255]
-
-  def __mouse_event_processing(self, pos):
-    color = self._read_colors(pos)
-    print(color[0], '\t', color[1], '\t', color[2])
+    return self._calc_roi_color(roi)
 
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
@@ -81,7 +70,10 @@ class ColorReader(metaclass = abc.ABCMeta):
     elif event == cv2.EVENT_LBUTTONUP:
       self.__mouse_drawer.mouse_up_event((x, y))
       self.__rect[1] = [x, y]
-      self.__read_rect_color(self.__rect)
+  
+      color = self.__read_rect_color(self.__rect)
+      print(color[0], '\t', color[1], '\t', color[2])
+      
 
   def processing(self):
     cv2.imshow(self.__window, self._img)
@@ -101,23 +93,48 @@ class ColorReaderRGB(ColorReader):
     super().__init__(filename)
     print('R\tG\tB')
 
-  def _read_pixel_color(self, pos):
-    super()._read_colors(pos)
-    pos_x, pos_y = pos
-    b, g, r = self._img[pos_y, pos_x, :]
-    return r, g, b
+  def _calc_roi_color(self, img_roi):
+    super()._calc_roi_color(img_roi)
+    h, w, channels = img_roi.shape
+    b_data = []
+    g_data = []
+    r_data = []
+    for y in range(0, h):
+      for x in range(0, w):
+        b, g, r = img_roi[y, x, :]
+        b_data.append(int(b))
+        g_data.append(int(g))
+        r_data.append(int(r))
 
+    b_val = statistics.median(b_data)
+    g_val = statistics.median(g_data)
+    r_val = statistics.median(r_data)
+    return [b_val, g_val, r_val]
+  
 
 class ColorReaderYUV(ColorReader):
   def __init__(self, filename):
     super().__init__(filename)
     print('Y\tU\tV')
 
-  def _read_pixel_color(self, pos):
-    super()._read_colors(pos)
-    pos_x, pos_y = pos
-    img_yuv = cv2.cvtColor(self._img, cv2.COLOR_BGR2YUV)
-    return img_yuv[pos_y, pos_x, :]
+  def _calc_roi_color(self, img_roi):
+    super()._calc_roi_color(img_roi)
+    img_roi_yuv = cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
+    h, w, channels = img_roi_yuv.shape
+    y_data = []
+    u_data = []
+    v_data = []
+    for y in range(0, h):
+      for x in range(0, w):
+        y, u, v = img_roi_yuv[y, x, :]
+        y_data.append(int(y))
+        u_data.append(int(u))
+        v_data.append(int(v))
+
+    y_val = statistics.median(y_data)
+    u_val = statistics.median(u_data)
+    v_val = statistics.median(v_data)
+    return [y_val, u_val, v_val]
 
 
 def make_color_reader(color_format, img_file):

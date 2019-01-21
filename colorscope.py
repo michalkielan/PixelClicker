@@ -33,7 +33,7 @@ class MouseRectDrawer():
     cv2.imshow(self.__window, self.__img)
 
 
-class ColorReader(metaclass=abc.ABCMeta):
+class ColorReader(metaclass = abc.ABCMeta):
   def __init__(self, filename):
     self.__filename = filename
     self.__window = self.__filename
@@ -45,6 +45,10 @@ class ColorReader(metaclass=abc.ABCMeta):
   @abc.abstractmethod
   def _read_colors(self, pos):
     pass
+
+  def __filer(self, rect):
+    # to be implemented: average, median etc.
+    return [255, 0 255]
 
   def __mouse_event_processing(self, pos):
     color = self._read_colors(pos)
@@ -62,6 +66,8 @@ class ColorReader(metaclass=abc.ABCMeta):
     elif event == cv2.EVENT_LBUTTONUP:
       self.__mouse_drawer.mouse_up_event((x, y))
       self.__rect[1] = [x, y]
+      color = self.__filter(rect)
+      print(
 
   def processing(self):
     cv2.imshow(self.__window, self._img)

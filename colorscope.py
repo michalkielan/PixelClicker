@@ -48,21 +48,22 @@ class ColorReader(metaclass = abc.ABCMeta):
   def _get_color_format(self, img_roi):
     pass
 
+  def __filter(self, channel_data):
+    channel_val = []
+    for ch in channel_data:
+      channel_val.append(int(statistics.median(ch)))
+    return channel_val
+
   def __calc_roi_color(self, img_roi):
     h, w, num_channels = img_roi.shape
-    channel_data = [[], [], []]
+    channel_data = [[] for i in range(num_channels)]
     for y in range(0, h):
       for x in range(0, w):
-        channel = img_roi[y, x, :]
-        channel_data[0].append(int(channel[0]))
-        channel_data[1].append(int(channel[1]))
-        channel_data[2].append(int(channel[2]))
+        channels = img_roi[y, x, :]
+        for i in range(0, num_channels):
+          channel_data[i].append(int(channels[i]))
 
-    channel_val = [0, 0, 0]
-    channel_val[0] = statistics.median(channel_data[0])
-    channel_val[1] = statistics.median(channel_data[1])
-    channel_val[2] = statistics.median(channel_data[2])
-    return channel_val
+    return self.__filter(channel_data)
   
   def __read_rect_color(self, rect):
     p1_x, p1_y = [rect[0][0], rect[0][1]]

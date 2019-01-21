@@ -3,7 +3,11 @@ python:
   - "3.5"
 
 install:
-  - pip install pylint opencv-python
+  - pip install pylint opencv-python xvfbwrapper pytest-cov coveralls PyUserInput pillow pyyaml
 
 script:
-  - pylint --extension-pkg-whitelist=cv2 --disable=missing-docstring --disable=too-many-arguments --disable=unused-argument --disable=too-few-public-methods color_reader.py
+  - pylint colorscope.py
+  - pytest --cov colorscope tst_colorscope.py
+
+after_success:
+  - coveralls

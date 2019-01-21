@@ -1,8 +1,7 @@
-[![Travis CI](https://travis-ci.org/michalkielan/ColorScope.svg?branch=master)](https://travis-ci.org/michalkielan/ColorScope)
+# ColorScope [![Travis CI](https://travis-ci.org/michalkielan/ColorScope.svg?branch=master)](https://travis-ci.org/michalkielan/ColorScope) [![Coverage Status](http://coveralls.io/repos/github/michalkielan/ColorScope/badge.svg?branch=master&service=github)](https://coveralls.io/github/michalkielan/ColorScope?branch=master)
 
-# ColorScope
 
-![Logot](res/logo.png)
+![Logo](res/logo.png)
 
 Tool for analyze the image quality
 
@@ -23,5 +22,5 @@ $ sudo pip install opencv-python
 Format supported: RGB, YUV
 
 ```
-$ ./color_reader.py -i image.jpeg -f=RGB
+$ ./colorscope.py -i image.jpeg -f=RGB
 ```

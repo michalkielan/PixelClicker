@@ -21,15 +21,17 @@ class ColorReader(metaclass=abc.ABCMeta):
     pass
 
   def __mouse_event_processing(self, pos):
-    self._read_colors(pos)
+    color = self._read_colors(pos)
+    print(color[0], '\t', color[1], '\t', color[2])
 
 #  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
 #    if event == cv2.EVENT_LBUTTONDOWN:
 #      self.__mouse_event_processing((pos_x, pos_y))
 
-  def __on_mouse_event(self, event, x, y, flags, param):
+  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
+    del flags, param
   #  if event == cv2.EVENT_LBUTTONDOWN:
-  #     self.__mouseEventProcessing__(x, y)
+  #     self.__mouse_event_processing__(x, y)
     global ix,iy,drawing, mode
 
     if event==cv2.EVENT_LBUTTONDOWN:
@@ -47,7 +49,6 @@ class ColorReader(metaclass=abc.ABCMeta):
       if mode==True:
         cv2.rectangle(self._img,(ix,iy),(x,y),(0,0,255),10)
         cv2.imshow(self.__window, self._img)
-
 
   def processing(self):
     cv2.imshow(self.__window, self._img)
@@ -70,9 +71,8 @@ class ColorReaderRGB(ColorReader):
   def _read_colors(self, pos):
     super()._read_colors(pos)
     pos_x, pos_y = pos
-    color_rgb = self._img[pos_y, pos_x, :]
-    val_b, val_g, val_r = color_rgb
-    print(val_r, '\t', val_g, '\t', val_b)
+    b, g, r = self._img[pos_y, pos_x, :]
+    return r, g, b
 
 
 class ColorReaderYUV(ColorReader):
@@ -84,9 +84,8 @@ class ColorReaderYUV(ColorReader):
     super()._read_colors(pos)
     pos_x, pos_y = pos
     img_yuv = cv2.cvtColor(self._img, cv2.COLOR_BGR2YUV)
-    color_yuv = img_yuv[pos_y, pos_x, :]
-    val_y, val_u, val_v = color_yuv
-    print(val_y, '\t', val_u, '\t', val_v)
+    return img_yuv[pos_y, pos_x, :]
+
 
 def make_color_reader(color_format, img_file):
   if color_format == 'rgb':
@@ -105,15 +104,14 @@ def main():
   img_file = args.imgfile
 
   if not os.path.exists(img_file):
-    print('File not found')
-    sys.exit(1)
+    sys.exit('File not found')
 
   try:
     color_reader = make_color_reader(img_format, img_file)
     color_reader.processing()
   except AttributeError:
     err = sys.exc_info()[1]
-    print('Cannot read color: ', err)
+    sys.exit('Cannot read color: ' + str(err))
 
 if __name__ == '__main__':
   main()

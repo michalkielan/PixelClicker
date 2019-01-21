@@ -1,9 +1,12 @@
-Change Log
+ChangeLog
 ==========
 
 ### Added
  - show rgb values of pixel
- - add yuv
+ - yuv support
+ - test framework
+ - coverage
+ - gui tests
 
 ### Changed
  - arg parser

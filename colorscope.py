@@ -7,14 +7,19 @@ import sys
 import os
 import cv2
 
-drawing=False # true if mouse is pressed
-mode=True # if True, draw rectangle. Press 'm' to toggle to curve
+DRAWING = False # true if mouse is pressed
+MODE = True # if True, draw rectangle. Press 'm' to toggle to curve
+
+ix = 0
+iy = 0
 
 class ColorReader(metaclass=abc.ABCMeta):
   def __init__(self, filename):
     self.__filename = filename
     self.__window = self.__filename
     self._img = cv2.imread(self.__filename)
+    self._img_mark = self._img.copy()
+
 
   @abc.abstractmethod
   def _read_colors(self, pos):
@@ -24,30 +29,25 @@ class ColorReader(metaclass=abc.ABCMeta):
     color = self._read_colors(pos)
     print(color[0], '\t', color[1], '\t', color[2])
 
-#  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
-#    if event == cv2.EVENT_LBUTTONDOWN:
-#      self.__mouse_event_processing((pos_x, pos_y))
-
-  def __on_mouse_event(self, event, pos_x, pos_y, flags, param):
+  def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
-  #  if event == cv2.EVENT_LBUTTONDOWN:
-  #     self.__mouse_event_processing__(x, y)
-    global ix,iy,drawing, mode
+    global ix, iy, DRAWING, MODE
 
-    if event==cv2.EVENT_LBUTTONDOWN:
-      drawing=True
-      ix,iy=x,y
+    if event == cv2.EVENT_LBUTTONDOWN:
+      DRAWING = True
+      ix, iy = x, y
 
-    elif event==cv2.EVENT_MOUSEMOVE:
-      if drawing==True:
-        if mode==True:
-          cv2.rectangle(self._img,(ix,iy),(x,y),(0,0,255),10)
+    elif event == cv2.EVENT_MOUSEMOVE:
+      if DRAWING == True:
+        if MODE == True:
+          self._img = self._img_mark.copy()
+          cv2.rectangle(self._img, (ix, iy), (x, y), (0, 0, 255), 1)
           cv2.imshow(self.__window, self._img)
 
-    elif event==cv2.EVENT_LBUTTONUP:
-      drawing=False
-      if mode==True:
-        cv2.rectangle(self._img,(ix,iy),(x,y),(0,0,255),10)
+    elif event == cv2.EVENT_LBUTTONUP:
+      DRAWING = False
+      if MODE == True:
+        cv2.rectangle(self._img, (ix, iy), (x, y), (0, 0, 255), 1)
         cv2.imshow(self.__window, self._img)
 
   def processing(self):

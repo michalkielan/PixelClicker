@@ -50,23 +50,15 @@ class ColorReader(metaclass = abc.ABCMeta):
 
   def __read_rect_color(self, rect):
     p1_x = rect[0][0]
-    p1_y = rect[1][0]
-    p2_x = rect[0][1]
+    p1_y = rect[0][1]
+    p2_x = rect[1][0]
     p2_y = rect[1][1]
 
-    print(rect)
-    
+    min_x, min_y = [min(p1_x, p2_x), min(p1_y, p2_y)] 
+    max_x, max_y = [max(p1_x, p2_x), max(p1_y, p2_y)] 
 
-    min_x = min(p1_x, p2_x)
-    min_y = min(p1_y, p2_y)
-    max_x = max(p1_x, p2_x)
-    max_y = max(p1_y, p2_y)
+    roi = self._img[min_y:max_y, min_x:max_x]
     
-    print(p2_x, '\t', p2_y, '\t', p1_x, '\t', p1_y)
-    print(min(p2_x, p2_y), '\t', max(p2_x, p2_y), '\t', min(p1_x, p1_y), '\t', max(p1_x, p1_y))
-
-    roi = self._img[min(p2_x, p2_y):max(p2_x, p2_y), min(p1_x, p1_y):max(p1_x, p1_y)]
-#    roi = self._img[p2_x:p2_y, p1_x:p1_y]
     cv2.imshow('window2', roi)
 
   def __filer(self, rect):

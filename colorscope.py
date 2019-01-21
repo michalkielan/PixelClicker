@@ -11,7 +11,6 @@ import cv2
 class MouseRectDrawer():
   def __init__(self, window, image, color):
     self.__is_drawing = False
-    self.__mode = True
     self.__start_pos = [0, 0]
     self.__color = color
     self.__window = window
@@ -23,17 +22,15 @@ class MouseRectDrawer():
     self.__start_pos = pos
 
   def mouse_move_event(self, pos):
-    if self.__is_drawing == True:
-      if self.__mode == True: 
-        self.__img = self.__img_mark.copy()
-        cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
-        cv2.imshow(self.__window, self.__img)
+    if self.__is_drawing:
+      self.__img = self.__img_mark.copy()
+      cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
+      cv2.imshow(self.__window, self.__img)
 
   def mouse_up_event(self, pos):
-      self.__is_drawing = False
-      if self.__mode == True:
-        cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
-        cv2.imshow(self.__window, self.__img)
+    self.__is_drawing = False
+    cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
+    cv2.imshow(self.__window, self.__img)
 
 
 class ColorReader(metaclass=abc.ABCMeta):
@@ -43,7 +40,7 @@ class ColorReader(metaclass=abc.ABCMeta):
     self._img = cv2.imread(self.__filename)
     self._img_mark = self._img.copy()
     self.__mouse_drawer = MouseRectDrawer(self.__window, self._img, (0, 0, 255))
-    self.__rect = [[0, 0], [0, 0]] 
+    self.__rect = [[0, 0], [0, 0]]
 
   @abc.abstractmethod
   def _read_colors(self, pos):
@@ -56,12 +53,12 @@ class ColorReader(metaclass=abc.ABCMeta):
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
     if event == cv2.EVENT_LBUTTONDOWN:
-     self.__mouse_drawer.mouse_down_event((x, y))
-     self.__rect[0] = [x, y]
+      self.__mouse_drawer.mouse_down_event((x, y))
+      self.__rect[0] = [x, y]
 
     elif event == cv2.EVENT_MOUSEMOVE:
       self.__mouse_drawer.mouse_move_event((x, y))
-    
+
     elif event == cv2.EVENT_LBUTTONUP:
       self.__mouse_drawer.mouse_up_event((x, y))
       self.__rect[1] = [x, y]

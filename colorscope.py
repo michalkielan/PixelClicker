@@ -45,9 +45,25 @@ class ColorReader(metaclass = abc.ABCMeta):
     self.__rect = [[0, 0], [0, 0]]
 
   @abc.abstractmethod
-  def _calc_roi_color(self, img_roi):
+  def _get_color_format(self, img_roi):
     pass
 
+  def __calc_roi_color(self, img_roi):
+    h, w, num_channels = img_roi.shape
+    channel_data = [[], [], []]
+    for y in range(0, h):
+      for x in range(0, w):
+        channel = img_roi[y, x, :]
+        channel_data[0].append(int(channel[0]))
+        channel_data[1].append(int(channel[1]))
+        channel_data[2].append(int(channel[2]))
+
+    channel_val = [0, 0, 0]
+    channel_val[0] = statistics.median(channel_data[0])
+    channel_val[1] = statistics.median(channel_data[1])
+    channel_val[2] = statistics.median(channel_data[2])
+    return channel_val
+  
   def __read_rect_color(self, rect):
     p1_x, p1_y = [rect[0][0], rect[0][1]]
     p2_x, p2_y = [rect[1][0], rect[1][1]]
@@ -56,7 +72,7 @@ class ColorReader(metaclass = abc.ABCMeta):
     max_x, max_y = [max(p1_x, p2_x), max(p1_y, p2_y)] 
 
     roi = self._img[min_y:max_y, min_x:max_x]
-    return self._calc_roi_color(roi)
+    return self.__calc_roi_color(self._get_color_format(roi))
 
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
@@ -93,48 +109,16 @@ class ColorReaderRGB(ColorReader):
     super().__init__(filename)
     print('R\tG\tB')
 
-  def _calc_roi_color(self, img_roi):
-    super()._calc_roi_color(img_roi)
-    h, w, channels = img_roi.shape
-    b_data = []
-    g_data = []
-    r_data = []
-    for y in range(0, h):
-      for x in range(0, w):
-        b, g, r = img_roi[y, x, :]
-        b_data.append(int(b))
-        g_data.append(int(g))
-        r_data.append(int(r))
-
-    b_val = statistics.median(b_data)
-    g_val = statistics.median(g_data)
-    r_val = statistics.median(r_data)
-    return [b_val, g_val, r_val]
-  
+  def _get_color_format(self, img_roi):
+    return cv2.cvtColor(img_roi, cv2.COLOR_BGR2RGB)
 
 class ColorReaderYUV(ColorReader):
   def __init__(self, filename):
     super().__init__(filename)
     print('Y\tU\tV')
 
-  def _calc_roi_color(self, img_roi):
-    super()._calc_roi_color(img_roi)
-    img_roi_yuv = cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
-    h, w, channels = img_roi_yuv.shape
-    y_data = []
-    u_data = []
-    v_data = []
-    for y in range(0, h):
-      for x in range(0, w):
-        y, u, v = img_roi_yuv[y, x, :]
-        y_data.append(int(y))
-        u_data.append(int(u))
-        v_data.append(int(v))
-
-    y_val = statistics.median(y_data)
-    u_val = statistics.median(u_data)
-    v_val = statistics.median(v_data)
-    return [y_val, u_val, v_val]
+  def _get_color_format(self, img_roi):
+    return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
 
 
 def make_color_reader(color_format, img_file):

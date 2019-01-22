@@ -13,8 +13,8 @@ def fake_xwindow_supported():
     return True
   return False
 
-def bash_supported_platform():
-  if sys.platform == 'linux' or sys.platform == 'darwin':
+def is_windows():
+  if sys.platform == 'win64' or sys.platform == 'win32':
     return True
   return False
 
@@ -245,16 +245,20 @@ class TestColorscope(unittest.TestCase):
       closer.join()
 
   def test_main(self):
-    if bash_supported_platform():
-      self.assertEqual(0, os.system('python colorscope.py -h'))
-      self.assertNotEqual(0, os.system('python colorscope.py -i invalid.png'))
-      self.assertNotEqual(0, os.system('python colorscope.py -i red.png -f=invalid'))
-      self.assertNotEqual(0, os.system('python colorscope.py -i '))
+    exe = ''
+    if is_windows():
+      exe = '%PYTHON%\\python.exe '
+    else:
+      exe = 'python '
+    self.assertEqual(0, os.system(exe + ' colorscope.py -h'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py -i invalid.png'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py -i red.png -f=invalid'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py -i '))
 
-      self.assertEqual(0, os.system('python colorscope.py --help'))
-      self.assertNotEqual(0, os.system('python colorscope.py --imgfile invalid.png'))
-      self.assertNotEqual(0, os.system('python colorscope.py --imgfile red.png --format=invalid'))
-      self.assertNotEqual(0, os.system('python colorscope.py --imgfile '))
+    self.assertEqual(0, os.system(exe + ' colorscope.py --help'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile invalid.png'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile red.png --format=invalid'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile '))
 
 
 if __name__ == '__main__':

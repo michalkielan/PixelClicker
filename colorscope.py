@@ -101,7 +101,7 @@ class ColorReader(metaclass=abc.ABCMeta):
       self.__mouse_drawer.mouse_up_event((x, y))
       self.__rect[1] = [x, y]
 
-      color = self.__read_rect_color(self.__rect)
+      color = self.read_rect_color(self.__rect)
       print(color[0], '\t', color[1], '\t', color[2])
 
 

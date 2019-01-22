@@ -100,9 +100,9 @@ class ColorReader(metaclass=abc.ABCMeta):
     elif event == cv2.EVENT_LBUTTONUP:
       self.__mouse_drawer.mouse_up_event((x, y))
       self.__rect[1] = [x, y]
-
-      color = self.read_rect_color(self.__rect)
-      print(color[0], '\t', color[1], '\t', color[2])
+      if self.__rect[0] != self.__rect[1]:
+        color = self.read_rect_color(self.__rect)
+        print(color[0], '\t', color[1], '\t', color[2])
 
 
   def processing(self):

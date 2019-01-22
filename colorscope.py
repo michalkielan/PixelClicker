@@ -11,14 +11,15 @@ import cv2
 
 class ColorChannelFilter:
   def __init__(self, img):
-    self.__channel_data = self.__get_channel_data(img)
+    self.__img = img
+    self.__channel_data = self.__get_channel_data()
 
-  def __get_channel_data(self, img):
-    h, w, num_channels = img.shape
+  def __get_channel_data(self):
+    h, w, num_channels = self.__img.shape
     channel_data = [[] for i in range(num_channels)]
     for y in range(0, h):
       for x in range(0, w):
-        channels = img[y, x, :]
+        channels = self.__img[y, x, :]
         for i in range(0, num_channels):
           channel_data[i].append(int(channels[i]))
     return channel_data

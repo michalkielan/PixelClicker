@@ -76,7 +76,7 @@ class ColorReader(metaclass=abc.ABCMeta):
   def _get_color_format(self, img_roi):
     pass
 
-  def __read_rect_color(self, rect):
+  def read_rect_color(self, rect):
     p1_x, p1_y = [rect[0][0], rect[0][1]]
     p2_x, p2_y = [rect[1][0], rect[1][1]]
 

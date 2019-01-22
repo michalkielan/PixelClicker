@@ -58,13 +58,13 @@ class Resources:
 
 
 class ColorReaderRgbMock(colorscope.ColorReaderRGB):
-  def read_colors(self, pos):
-    return self._read_colors(pos)
+  def read_rect_color(self, rect):
+    return self.read_rect_color(rect)
 
 
 class ColorReaderYuvMock(colorscope.ColorReaderYUV):
-  def read_colors(self, pos):
-    return self._read_colors(pos)
+  def read_rect_color(self, pos):
+    return self.read_rect_color(pos)
 
 
 class TestColorscope(unittest.TestCase):
@@ -93,8 +93,8 @@ class TestColorscope(unittest.TestCase):
      img_file = self.res.red
      cr_rgb = ColorReaderRgbMock(img_file)
      cr_yuv = ColorReaderYuvMock(img_file)
-     r, g, b = cr_rgb.read_colors((5,5))
-     y, u, v = cr_yuv.read_colors((5,5))
+     r, g, b = cr_rgb.read_rect_color([[1,1], [3,3]])
+     y, u, v = cr_yuv.read_rect_color([[1,1], [3,3]])
      self.assertEqual([r, g, b] , [255, 0, 0])
      self.assertEqual([y, u, v] , [76, 91, 255])
 
@@ -102,8 +102,8 @@ class TestColorscope(unittest.TestCase):
      img_file = self.res.green
      cr_rgb = ColorReaderRgbMock(img_file)
      cr_yuv = ColorReaderYuvMock(img_file)
-     r, g, b = cr_rgb.read_colors((5,5))
-     y, u, v = cr_yuv.read_colors((5,5))
+     r, g, b = cr_rgb.read_rect_color([[1,1], [3,3]])
+     y, u, v = cr_yuv.read_rect_color([[1,1], [3,3]])
      self.assertEqual([r, g, b] , [0, 255, 0])
      self.assertEqual([y, u, v] , [150, 54, 0])
 
@@ -111,8 +111,8 @@ class TestColorscope(unittest.TestCase):
      img_file = self.res.blue
      cr_rgb = ColorReaderRgbMock(img_file)
      cr_yuv = ColorReaderYuvMock(img_file)
-     r, g, b = cr_rgb.read_colors((5,5))
-     y, u, v = cr_yuv.read_colors((5,5))
+     r, g, b = cr_rgb.read_rect_color([[1,1], [3,3]])
+     y, u, v = cr_yuv.read_rect_color([[1,1], [3,3]])
      self.assertEqual([r, g, b] , [0, 0, 255])
      self.assertEqual([y, u, v] , [29, 239, 103])
 
@@ -120,8 +120,8 @@ class TestColorscope(unittest.TestCase):
      img_file = self.res.white
      cr_rgb = ColorReaderRgbMock(img_file)
      cr_yuv = ColorReaderYuvMock(img_file)
-     r, g, b = cr_rgb.read_colors((5,5))
-     y, u, v = cr_yuv.read_colors((5,5))
+     r, g, b = cr_rgb.read_rect_color([[1,1], [3,3]])
+     y, u, v = cr_yuv.read_rect_color([[1,1], [3,3]])
      self.assertEqual([r, g, b] , [255, 255, 255])
      self.assertEqual([y, u, v] , [255, 128, 128])
 
@@ -129,8 +129,8 @@ class TestColorscope(unittest.TestCase):
      img_file = self.res.black
      cr_rgb = ColorReaderRgbMock(img_file)
      cr_yuv = ColorReaderYuvMock(img_file)
-     r, g, b = cr_rgb.read_colors((5,5))
-     y, u, v = cr_yuv.read_colors((5,5))
+     r, g, b = cr_rgb.read_rect_color([[1,1], [3,3]])
+     y, u, v = cr_yuv.read_rect_color([[1,1], [3,3]])
      self.assertEqual([r, g, b] , [0, 0, 0])
      self.assertEqual([y, u, v] , [0, 128, 128])
 

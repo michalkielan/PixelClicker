@@ -9,4 +9,4 @@ install:
 build: off
 
 test_script:
-  - "build.cmd %PYTHON%\\python.exe colorscope -h"
+  - "%PYTHON%\\python.exe colorscope -h"

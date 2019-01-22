@@ -1,12 +1,14 @@
 environment:
   matrix:
     - PYTHON: "C:\\Python35-x64"
-    - PYTHON: "C:\\Python36-x64"
 
 install:
-  - "%PYTHON%\\python.exe -m pip install wheel pylint opencv-python numpy"
+  - "%PYTHON%\\python.exe -m pip install wheel pylint opencv-python numpy pytest-cov pillow"
 
 build: off
 
 test_script:
   - "%PYTHON%\\python.exe colorscope.py -h"
+  - "%PYTHON%\\pylint.exe colorscope.py -h"
+  - "%PYTHON%\\pytest.exe colorscope.py -h"
+  - "%PYTHON%\\python.exe python colorscope.py -h"

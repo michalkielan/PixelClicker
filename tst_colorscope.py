@@ -2,14 +2,18 @@ import unittest
 import colorscope
 import threading
 import os
+import sys
 import cv2
 
 from time import sleep
 from pykeyboard import PyKeyboard
 from pymouse import PyMouse
 from PIL import Image, ImageDraw
-from xvfbwrapper import Xvfb
 
+def fake_xwindow_supported():
+  if sys.platform == 'linux':
+    return True
+  return False
 
 class FakeKeyboard:
   def __init__(self):
@@ -71,9 +75,11 @@ class ColorReaderYuvMock(colorscope.ColorReaderYUV):
 
 class TestColorscope(unittest.TestCase):
   def setUp(self):
-    self.xvfb = Xvfb(width = 1280, height = 720)
-    self.addCleanup(self.xvfb.stop)
-    self.xvfb.start()
+    if fake_xwindow_supported():
+      from xvfbwrapper import Xvfb
+      self.xvfb = Xvfb(width = 1280, height = 720)
+      self.addCleanup(self.xvfb.stop)
+      self.xvfb.start()
     self.res = Resources()
 
   def test_factory_create(self):
@@ -212,22 +218,24 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual([b, g, r] , [255, 255, 255])
 
   def close_window(self):
-    fake_mouse = FakeMouse()
-    fake_keyboard = FakeKeyboard()
-    start_pos = [50, 50]
-    timeout = 3
-    x, y = start_pos
+    if fake_xwindow_supported():
+      fake_mouse = FakeMouse()
+      fake_keyboard = FakeKeyboard()
+      start_pos = [50, 50]
+      timeout = 3
+      x, y = start_pos
     
-    sleep(timeout)
-    fake_mouse.click(x, y)
-    fake_keyboard.tap_esc()
+      sleep(timeout)
+      fake_mouse.click(x, y)
+      fake_keyboard.tap_esc()
 
   def test_gui_open_close(self):
-    closer = threading.Thread(target=self.close_window)
-    closer.start()
-    csRGB = colorscope.ColorReaderRGB(self.res.red)
-    csRGB.processing()
-    closer.join()
+    if fake_xwindow_supported():
+      closer = threading.Thread(target=self.close_window)
+      closer.start()
+      csRGB = colorscope.ColorReaderRGB(self.res.red)
+      csRGB.processing()
+      closer.join()
 
   def test_main(self):
      self.assertEqual(0, os.system('python colorscope.py -h'))

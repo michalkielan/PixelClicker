@@ -3,7 +3,7 @@ environment:
     - PYTHON: "C:\\Python35-x64"
 
 install:
-  - "%PYTHON%\\python.exe -m pip install wheel pylint opencv-python numpy pytest-cov pillow PyUserInput"
+  - "%PYTHON%\\python.exe -m pip install wheel pylint opencv-python numpy pytest-cov pillow"
 
 build: off
 

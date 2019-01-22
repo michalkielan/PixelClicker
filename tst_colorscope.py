@@ -6,14 +6,16 @@ import sys
 import cv2
 
 from time import sleep
-from pykeyboard import PyKeyboard
-from pymouse import PyMouse
 from PIL import Image, ImageDraw
 
 def fake_xwindow_supported():
   if sys.platform == 'linux':
     return True
   return False
+
+if fake_xwindow_supported():
+  from pykeyboard import PyKeyboard
+  from pymouse import PyMouse
 
 class FakeKeyboard:
   def __init__(self):

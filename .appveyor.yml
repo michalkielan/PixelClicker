@@ -9,5 +9,4 @@ build: off
 
 test_script:
   - "%PYTHON%\\python.exe colorscope.py -h"
-    #  - "%PYTHON%\\pytest.exe colorscope.py -h"
-  - "%PYTHON%\\python.exe colorscope.py -h"
+  - "%PYTHON%\\python.exe tat_colorscope.py"

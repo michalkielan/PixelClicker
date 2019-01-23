@@ -252,12 +252,12 @@ class TestColorscope(unittest.TestCase):
       exe = 'python '
     self.assertEqual(0, os.system(exe + ' colorscope.py -h'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i invalid.png'))
-    self.assertNotEqual(0, os.system(exe + ' colorscope.py -i red.png -f=invalid'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py -i red.png -pix_fmt=invalid'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i '))
 
     self.assertEqual(0, os.system(exe + ' colorscope.py --help'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile invalid.png'))
-    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile red.png --format=invalid'))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile red.png --pixel_format=invalid'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile '))
 
 

@@ -12,3 +12,4 @@ ChangeLog
 ### Changed
  - arg parser
  - color of pixel to [average|median] color of roi
+ - parser params to make it more ffmpeg compatible

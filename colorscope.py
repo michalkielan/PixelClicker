@@ -135,27 +135,27 @@ class ColorReaderYUV(ColorReader):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
 
 
-def make_color_reader(color_format, img_file):
-  if color_format == 'rgb':
+def make_color_reader(pixel_format, img_file):
+  if pixel_format == 'rgb':
     return ColorReaderRGB(img_file)
-  if color_format == 'yuv':
+  if pixel_format == 'yuv':
     return ColorReaderYUV(img_file)
-  raise AttributeError('Color format: ' + color_format + ' not found')
+  raise AttributeError('Color format: ' + pixel_format + ' not found')
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-i', '--imgfile', type=str, help='Image file', default='')
-  parser.add_argument('-f', '--format', type=str, help='RGB, YUV (Default: RGB)', default='RGB')
+  parser.add_argument('-pix_fmt', '--pixel_format', type=str, help='rgb, yuv (Default: rgb)', default='rgb')
 
   args = parser.parse_args()
-  img_format = args.format.lower()
+  img_pixel_format = args.pixel_format.lower()
   img_file = args.imgfile
 
   if not os.path.exists(img_file):
     sys.exit('File not found')
 
   try:
-    color_reader = make_color_reader(img_format, img_file)
+    color_reader = make_color_reader(img_pixel_format, img_file)
     color_reader.processing()
   except AttributeError:
     err = sys.exc_info()[1]

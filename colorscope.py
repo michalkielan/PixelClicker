@@ -149,13 +149,16 @@ def main():
       '--imgfile',
       type=str,
       help='Image file',
-      default='')
+      default=''
+  )
+
   parser.add_argument(
       '-pix_fmt',
       '--pixel_format',
       type=str,
       help='rgb, yuv (Default: rgb)',
-      default='rgb')
+      default='rgb'
+  )
 
   args = parser.parse_args()
   img_pixel_format = args.pixel_format.lower()

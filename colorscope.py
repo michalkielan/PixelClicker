@@ -144,8 +144,18 @@ def make_color_reader(pixel_format, img_file):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('-i', '--imgfile', type=str, help='Image file', default='')
-  parser.add_argument('-pix_fmt', '--pixel_format', type=str, help='rgb, yuv (Default: rgb)', default='rgb')
+  parser.add_argument(
+      '-i',  
+      '--imgfile',
+      type=str, 
+      help='Image file', 
+      default='')
+  parser.add_argument(
+      '-pix_fmt',
+      '--pixel_format',
+      type=str,
+      help='rgb, yuv (Default: rgb)',
+      default='rgb')
 
   args = parser.parse_args()
   img_pixel_format = args.pixel_format.lower()

@@ -145,10 +145,10 @@ def make_color_reader(pixel_format, img_file):
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      '-i',  
+      '-i',
       '--imgfile',
-      type=str, 
-      help='Image file', 
+      type=str,
+      help='Image file',
       default='')
   parser.add_argument(
       '-pix_fmt',

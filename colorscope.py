@@ -218,7 +218,7 @@ def main():
       default='rgb'
   )
 
-  args = parser.parse_args() # todo: a lot of variables -> make class for argparser
+  args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()
   video_size = parse_video_size_arg(args.video_size)

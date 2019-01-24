@@ -51,8 +51,8 @@ class Resources:
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv12 -i /dev/urandom -vframes 1 raw_nv12_1920_1080.yuv')
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv21 -i /dev/urandom -vframes 1 raw_nv21_1920_1080.yuv')
     
-      self.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
-      self.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
+      self.res.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
+      self.res.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
     
       self.raw_nv12_1280_720 = 'raw_nv12_1280_720.yuv'
       self.raw_nv21_1280_720 = 'raw_nv21_1280_720.yuv'

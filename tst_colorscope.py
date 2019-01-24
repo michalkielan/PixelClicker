@@ -144,7 +144,7 @@ class TestColorscope(unittest.TestCase):
       self.assertEqual(3, channels)
 
   def test_image_loader_factory_failed(self):
-    with self.assertReaise(AttributeError):
+    with self.assertRaises(AttributeError):
       imloader = colorscope.image_loader_factory('', 'invalid', [1280, 720])
 
   def test_image_loader_nv12_1080p(self):

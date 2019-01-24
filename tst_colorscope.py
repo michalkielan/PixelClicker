@@ -148,9 +148,10 @@ class TestColorscope(unittest.TestCase):
       imloader = colorscope.image_loader_factory('', 'invalid', [1280, 720])
 
   def test_image_loader_factory_wrong_size(self):
-    with self.assertRaises(ValueError):
-      imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
-      colorscope.make_color_reader('rgb', imloader)
+    if not is_windows():
+      with self.assertRaises(ValueError):
+        imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
+        colorscope.make_color_reader('rgb', imloader)
 
   def test_image_loader_nv12_1080p(self):
     if not is_windows():

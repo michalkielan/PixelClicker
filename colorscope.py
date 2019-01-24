@@ -97,8 +97,7 @@ class ImageLoaderRawNV21(ImageLoader):
 def image_loader_factory(img_filename, pixel_format='', size=None):
   if pixel_format == 'nv21':
     return ImageLoaderRawNV21(img_filename, size)
-  else:
-    return ImageDefaultLoader(img_filename)
+  return ImageDefaultLoader(img_filename)
 
 
 class ColorReader(metaclass=abc.ABCMeta):
@@ -182,42 +181,43 @@ def make_color_reader(color_format, image_loader):
   if color_format == 'yuv':
     return ColorReaderYUV(image_loader)
   raise AttributeError('make_color_reader: ' + color_format + ' not found')
-  
+
 def parse_video_size_arg(arg_size):
   # todo: implement parser for:
   # ./colorscope -s 640x480
+  del arg_size
   return 480, 640
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
-    '-i', 
-    '--imgfile', 
-    type=str,
-    help='Image file',
-    default=''
+      '-i',
+      '--imgfile',
+      type=str,
+      help='Image file',
+      default=''
   )
-  
+
   parser.add_argument(
-    '-pix_fmt',
-    '--pixel_format',
-    type=str, help='Raw input pixel format',
-    default=''
+      '-pix_fmt',
+      '--pixel_format',
+      type=str, help='Raw input pixel format',
+      default=''
   )
-  
+
   parser.add_argument(
-    '-s',
-    '--video_size',
-    type=str, help='WxH set the frame size',
-    default=''
+      '-s',
+      '--video_size',
+      type=str, help='WxH set the frame size',
+      default=''
   )
-  
+
   parser.add_argument(
-    '-out_fmt',
-    '--output_format',
-    type=str,
-    help='Output rgb, yuv (Default: rgb)',
-    default='rgb'
+      '-out_fmt',
+      '--output_format',
+      type=str,
+      help='Output rgb, yuv (Default: rgb)',
+      default='rgb'
   )
 
   args = parser.parse_args() # todo: a lot of variables -> make class for argparser

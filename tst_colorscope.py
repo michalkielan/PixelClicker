@@ -112,6 +112,7 @@ class TestColorscope(unittest.TestCase):
       colorscope.make_color_reader('invalid', '')
 
   def test_colorscope_instances(self):
+    imloader = colorscope.ImageDefaultLoader(self.res.red)
     csRGB = colorscope.ColorReaderRGB(imloader)
     csYUV = colorscope.ColorReaderYUV(imloader)
 

@@ -244,9 +244,9 @@ def main():
   try:
     color_reader = make_color_reader(output_format, image_loader)
     color_reader.processing()
-  except AttributeError:
+  except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]
-    sys.exit('Cannot read color: ' + str(err))
+    sys.exit('Cannot read image: ' + str(err))
 
 
 if __name__ == '__main__':

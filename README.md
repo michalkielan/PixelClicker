@@ -5,10 +5,8 @@
 
 Tool for analyze the image quality
 
-## Requirements 
-```
+## Requirements
 * python-opencv
-```
 
 ```
 $ sudo pip install opencv-python

@@ -124,7 +124,7 @@ class TestColorscope(unittest.TestCase):
       img = image_loader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])
-      self.assertEqua(3, channels)
+      self.assertEqual(3, channels)
 
   def test_color_rgb_red(self):
     img_file = self.res.red

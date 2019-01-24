@@ -43,19 +43,32 @@ class Resources:
   def __init__(self):
     size = (10, 10)
     self.rect = [[1,1],[5,5]]
+
+    if not is_windows():
+      os.system('ffmpeg -f rawvideo -video_size 1280x720 -pixel_format nv12 -i /dev/urandom -vframes 1 raw_nv12_1280_720.yuv')
+      os.system('ffmpeg -f rawvideo -video_size 1280x720 -pixel_format nv21 -i /dev/urandom -vframes 1 raw_nv21_1280_720.yuv')
+
+      os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv12 -i /dev/urandom -vframes 1 raw_nv12_1920_1080.yuv')
+      os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv21 -i /dev/urandom -vframes 1 raw_nv21_1920_1080.yuv')
     
+      self.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
+      self.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
+    
+      self.raw_nv12_1280_720 = 'raw_nv12_1280_720.yuv'
+      self.raw_nv21_1280_720 = 'raw_nv21_1280_720.yuv'
+
     self.red = 'red.png'
     self.green = 'green.png'
     self.blue = 'blue.png'
     self.black = 'black.png'
     self.white = 'white.png'
-    
+
     img_red = Image.new('RGB', size, (255, 0 ,0 ))
     img_green = Image.new('RGB', size, (0, 255, 0))
     img_blue = Image.new('RGB', size, (0, 0, 255))
     img_black = Image.new('RGB', size, (0, 0 ,0))
     img_white = Image.new('RGB', size, (255, 255, 255))
-    
+
     img_red.save(self.red)
     img_green.save(self.green)
     img_blue.save(self.blue)
@@ -105,12 +118,20 @@ class TestColorscope(unittest.TestCase):
 #    with self.assertRaises(TypeError):
 #      csINV = colorscope.ColorReader(imloader)
 
+  def test_image_loader_nv21(self):
+    if not is_windows():
+      size_1080p = [1920, 1080]
+      image_loader = colorscope.ImageLoaderRawNV21(self.raw_nv12_1920_1080, size_1080p)
+      img1080p = image_loader.imread()
+      h, w, channels = img.shape
+      self.assertEqual(size_1080p, [h, w])
+
   def test_color_rgb_red(self):
-     img_file = self.res.red
-     img_loader = colorscope.ImageDefaultLoader(img_file)
-     cr_rgb = ColorReaderRgbMock(img_loader)
-     rgb = cr_rgb.read_rect_color(self.res.rect)
-     self.assertEqual(rgb , [255, 0, 0])
+    img_file = self.res.red
+    img_loader = colorscope.ImageDefaultLoader(img_file)
+    cr_rgb = ColorReaderRgbMock(img_loader)
+    rgb = cr_rgb.read_rect_color(self.res.rect)
+    self.assertEqual(rgb , [255, 0, 0])
   
   def test_color_yuv_red(self):
     img_file = self.res.red

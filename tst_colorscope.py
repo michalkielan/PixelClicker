@@ -102,26 +102,26 @@ class TestColorscope(unittest.TestCase):
       self.xvfb.start()
     self.res = Resources()
 
-#  def test_factory_create(self):
-#    imloader = ImageDefaultLoader(self.res.red)
-#    colorscope.make_color_reader('rgb', imloader)
-#    colorscope.make_color_reader('yuv', imloader)
-#
-#    with self.assertRaises(AttributeError):
-#      colorscope.make_color_reader('', '')
-#      colorscope.make_color_reader('invalid', '')
-#
-#  def test_colorscope_instances(self):
-#    csRGB = colorscope.ColorReaderRGB(imloader)
-#    csYUV = colorscope.ColorReaderYUV(imloader)
-#
-#    with self.assertRaises(TypeError):
-#      csINV = colorscope.ColorReader(imloader)
+  def test_factory_create(self):
+    imloader = colorscope.ImageDefaultLoader(self.res.red)
+    colorscope.make_color_reader('rgb', imloader)
+    colorscope.make_color_reader('yuv', imloader)
+
+    with self.assertRaises(AttributeError):
+      colorscope.make_color_reader('', '')
+      colorscope.make_color_reader('invalid', '')
+
+  def test_colorscope_instances(self):
+    csRGB = colorscope.ColorReaderRGB(imloader)
+    csYUV = colorscope.ColorReaderYUV(imloader)
+
+    with self.assertRaises(TypeError):
+      csINV = colorscope.ColorReader(imloader)
 
   def test_image_loader_nv21(self):
     if not is_windows():
-      image_loader = colorscope.ImageLoaderRawNV12(self.res.raw_nv12_1920_1080, [1920, 1080])
-      img = image_loader.imread()
+      imaloader = colorscope.ImageLoaderRawNV12(self.res.raw_nv12_1920_1080, [1920, 1080])
+      img = imloader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])
       self.assertEqual(3, channels)

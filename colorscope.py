@@ -105,7 +105,9 @@ def image_loader_factory(img_filename, pixel_format='', size=None):
     return ImageLoaderRawNV21(img_filename, size)
   if pixel_format == 'nv12':
     return ImageLoaderRawNV12(img_filename, size)
-  return ImageDefaultLoader(img_filename)
+  if pixel_format == '':
+    return ImageDefaultLoader(img_filename)
+  raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
 
 
 class ColorReader(metaclass=abc.ABCMeta):
@@ -191,8 +193,9 @@ def make_color_reader(color_format, image_loader):
   raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 def parse_video_size_arg(video_size):
-  w, h = video_size.split('x', 1)
-  return int(w), int(h)
+  if video_size !=  '':
+    w, h = video_size.split('x', 1)
+    return int(w), int(h)
 
 def main():
   parser = argparse.ArgumentParser()

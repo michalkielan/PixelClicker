@@ -207,7 +207,7 @@ def main():
   parser.add_argument(
       '-pix_fmt',
       '--pixel_format',
-      type=str, help='Raw input pixel format',
+      type=str, help='Raw input pixel format: nv21, nv12',
       default=''
   )
 

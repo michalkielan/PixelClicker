@@ -119,12 +119,36 @@ class TestColorscope(unittest.TestCase):
     with self.assertRaises(TypeError):
       csINV = colorscope.ColorReader(imloader)
 
-  def test_image_loader_nv21(self):
+  def test_image_loader_nv12_1080p(self):
     if not is_windows():
       imloader = colorscope.ImageLoaderRawNV12(self.res.raw_nv12_1920_1080, [1920, 1080])
       img = imloader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])
+      self.assertEqual(3, channels)
+
+  def test_image_loader_nv12_720p(self):
+    if not is_windows():
+      imloader = colorscope.ImageLoaderRawNV12(self.res.raw_nv12_1280_720, [1280, 720])
+      img = imloader.imread()
+      h, w, channels = img.shape
+      self.assertEqual([720, 1280], [h, w])
+      self.assertEqual(3, channels)
+
+  def test_image_loader_nv21_1080p(self):
+    if not is_windows():
+      imloader = colorscope.ImageLoaderRawNV21(self.res.raw_nv21_1920_1080, [1920, 1080])
+      img = imloader.imread()
+      h, w, channels = img.shape
+      self.assertEqual([1080, 1920], [h, w])
+      self.assertEqual(3, channels)
+
+  def test_image_loader_nv21_720p(self):
+    if not is_windows():
+      imloader = colorscope.ImageLoaderRawNV21(self.res.raw_nv21_1280_720, [1280, 720])
+      img = imloader.imread()
+      h, w, channels = img.shape
+      self.assertEqual([720, 1280], [h, w])
       self.assertEqual(3, channels)
 
   def test_color_rgb_red(self):

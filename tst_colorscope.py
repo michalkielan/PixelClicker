@@ -149,7 +149,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_factory_wrong_size(self):
     with self.assertRaises(ValueError):
-      imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [100, 100])
+      imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
       colorscope.make_color_reader('rgb', imloader)
 
   def test_image_loader_nv12_1080p(self):

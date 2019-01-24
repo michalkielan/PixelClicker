@@ -51,8 +51,8 @@ class Resources:
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv12 -i /dev/urandom -vframes 1 raw_nv12_1920_1080.yuv')
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv21 -i /dev/urandom -vframes 1 raw_nv21_1920_1080.yuv')
     
-      self.res.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
-      self.res.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
+      self.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
+      self.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
     
       self.raw_nv12_1280_720 = 'raw_nv12_1280_720.yuv'
       self.raw_nv21_1280_720 = 'raw_nv21_1280_720.yuv'
@@ -121,7 +121,7 @@ class TestColorscope(unittest.TestCase):
   def test_image_loader_nv21(self):
     if not is_windows():
       size_1080p = [1920, 1080]
-      image_loader = colorscope.ImageLoaderRawNV21(self.raw_nv12_1920_1080, size_1080p)
+      image_loader = colorscope.ImageLoaderRawNV21(self.res.raw_nv12_1920_1080, size_1080p)
       img1080p = image_loader.imread()
       h, w, channels = img.shape
       self.assertEqual(size_1080p, [h, w])

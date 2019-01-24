@@ -193,9 +193,10 @@ def make_color_reader(color_format, image_loader):
   raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 def parse_video_size_arg(video_size):
-  if video_size !=  '':
+  if video_size != '':
     w, h = video_size.split('x', 1)
     return int(w), int(h)
+  return None
 
 def main():
   parser = argparse.ArgumentParser()

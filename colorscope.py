@@ -83,20 +83,28 @@ class ImageLoaderRawNV21(ImageLoader):
     self.__img_file = open(filename, 'rb')
     self.__shape = (int(height * 1.5), width)
 
-  def __read_raw(self):
+  def _read_raw(self):
     raw = self.__img_file.read(int(self.__frame_len))
     buf = np.frombuffer(raw, dtype=np.uint8)
-    nv21 = buf.reshape(self.__shape)
-    return nv21
+    raw_img = buf.reshape(self.__shape)
+    return raw_img
 
   def imread(self):
-    nv21 = self.__read_raw()
-    return cv2.cvtColor(nv21, cv2.COLOR_YUV2BGR_NV21)
+    raw_img = self._read_raw()
+    return cv2.cvtColor(raw_img, cv2.COLOR_YUV2BGR_NV21)
+
+
+class ImageLoaderRawNV12(ImageLoaderRawNV21):
+  def imread(self):
+    raw_img = self._read_raw()
+    return cv2.cvtColor(raw_img, cv2.COLOR_YUV2BGR_NV12)
 
 
 def image_loader_factory(img_filename, pixel_format='', size=None):
   if pixel_format == 'nv21':
     return ImageLoaderRawNV21(img_filename, size)
+  if pixel_format == 'nv12':
+    return ImageLoaderRawNV12(img_filename, size)
   return ImageDefaultLoader(img_filename)
 
 

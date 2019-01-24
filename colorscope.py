@@ -78,7 +78,7 @@ class ImageDefaultLoader(ImageLoader):
 
 class ImageLoaderRawNV21(ImageLoader):
   def __init__(self, filename, size):
-    height, width = size
+    width, height = size
     self.__frame_len = width * height * 3 / 2
     self.__img_file = open(filename, 'rb')
     self.__shape = (int(height * 1.5), width)
@@ -182,11 +182,9 @@ def make_color_reader(color_format, image_loader):
     return ColorReaderYUV(image_loader)
   raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
-def parse_video_size_arg(arg_size):
-  # todo: implement parser for:
-  # ./colorscope -s 640x480
-  del arg_size
-  return 480, 640
+def parse_video_size_arg(video_size):
+  w, h = video_size.split('x', 1)
+  return int(w), int(h)
 
 def main():
   parser = argparse.ArgumentParser()

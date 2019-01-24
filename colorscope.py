@@ -208,7 +208,7 @@ def main():
   parser.add_argument(
     '-s',
     '--video_size',
-    type=str, help='width x height, ex 640x480',
+    type=str, help='WxH set the frame size',
     default=''
   )
   

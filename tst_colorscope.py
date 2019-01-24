@@ -120,7 +120,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_nv21(self):
     if not is_windows():
-      image_loader = colorscope.ImageLoaderRawNV24(self.res.raw_nv12_1920_1080, [1920, 1080])
+      image_loader = colorscope.ImageLoaderRawNV12(self.res.raw_nv12_1920_1080, [1920, 1080])
       img = image_loader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])

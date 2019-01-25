@@ -39,7 +39,7 @@ class ColorChannelFilter:
 
 class RectDrawer:
   def __init__(self, window, image, color):
-    self.__is_drawing = False
+    self.__is_draw = False
     self.__start_pos = [0, 0]
     self.__color = color
     self.__window = window
@@ -47,17 +47,17 @@ class RectDrawer:
     self.__img_mark = self.__img.copy()
 
   def start(self, pos):
-    self.__is_drawing = True
+    self.__is_draw = True
     self.__start_pos = pos
 
-  def drawing(self, pos):
-    if self.__is_drawing:
+  def draw(self, pos):
+    if self.__is_draw:
       self.__img = self.__img_mark.copy()
       cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
       cv2.imshow(self.__window, self.__img)
 
   def end(self, pos):
-    self.__is_drawing = False
+    self.__is_draw = False
     cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
     cv2.imshow(self.__window, self.__img)
 
@@ -145,7 +145,7 @@ class ColorReader(metaclass=abc.ABCMeta):
       self.__rect[0] = [x, y]
 
     elif event == cv2.EVENT_MOUSEMOVE:
-      self.__drawer.drawing((x, y))
+      self.__drawer.draw((x, y))
 
     elif event == cv2.EVENT_LBUTTONUP:
       self.__drawer.end((x, y))

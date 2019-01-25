@@ -346,10 +346,10 @@ class TestColorscope(unittest.TestCase):
     drawer.start((x, y)) 
     x += 1
     y += 1
-    drawer.drawing((x, y))
+    drawer.draw((x, y))
     x += 1
     y += 1
-    drawer.drawing((x, y))
+    drawer.draw((x, y))
     x += 1
     y += 1
     drawer.end((x, y))

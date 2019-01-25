@@ -31,6 +31,7 @@ class ColorChannelFilter(metaclass=abc.ABCMeta):
       return ColorChannelFilterMedian()
     return ColorChannelFilterAverage()
 
+
 class ColorChannelFilterMedian(ColorChannelFilter):
   def __median(self, img):
     channel_filtered = []

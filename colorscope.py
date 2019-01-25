@@ -14,7 +14,8 @@ class ColorChannelFilter(metaclass=abc.ABCMeta):
   def filter(self, img):
     pass
 
-  def _get_channel_data(self, img):
+  @staticmethod
+  def _get_channel_data(img):
     h, w, num_channels = img.shape
     channel_data = [[] for i in range(num_channels)]
     for y in range(0, h):
@@ -184,16 +185,16 @@ class ColorReader(metaclass=abc.ABCMeta):
     cv2.destroyAllWindows()
 
   @staticmethod
-  def create(color_format, image_loader):
+  def create(color_format, image_loader, filter_type):
     if color_format == 'rgb':
-      return ColorReaderRGB(image_loader)
+      return ColorReaderRGB(image_loader, filter_type)
     if color_format == 'yuv':
-      return ColorReaderYUV(image_loader)
+      return ColorReaderYUV(image_loader, filter_type)
     raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 
 class ColorReaderRGB(ColorReader):
-  def __init__(self, filename, filter_type='avb'):
+  def __init__(self, filename, filter_type='avg'):
     super().__init__(filename, filter_type)
     print('R', 'G', 'B', sep='\t')
 
@@ -266,13 +267,10 @@ def main():
   if not os.path.exists(img_file):
     sys.exit('File not found')
 
-  filtering = filter_factory(filter_type)
-  image_loader = image_loader_factory(img_file, pixel_format, video_size)
-
   image_loader = ImageLoader.create(img_file, pixel_format, video_size)
 
   try:
-    color_reader = ColorReader.create(output_format, image_loader, filtering)
+    color_reader = ColorReader.create(output_format, image_loader, filter_type)
     color_reader.processing()
   except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]

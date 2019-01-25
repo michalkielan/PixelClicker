@@ -336,24 +336,6 @@ class TestColorscope(unittest.TestCase):
       csRGB.processing()
       closer.join()
 
-  def test_drawer(self):
-    img = cv2.imread(self.res.red)
-    window = 'window'
-    cv2.imshow(window, img) 
-    drawer = colorscope.RectDrawer(window, img, (0, 0, 0))
-    x = 1
-    y = 1
-    drawer.start((x, y)) 
-    x += 1
-    y += 1
-    drawer.draw((x, y))
-    x += 1
-    y += 1
-    drawer.draw((x, y))
-    x += 1
-    y += 1
-    drawer.end((x, y))
-
   def test_main(self):
     exe = ''
     if is_windows():

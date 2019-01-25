@@ -51,10 +51,10 @@ class Resources:
 
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv12 -i /dev/urandom -vframes 1 raw_nv12_1920_1080.yuv')
       os.system('ffmpeg -f rawvideo -video_size 1920x1080 -pixel_format nv21 -i /dev/urandom -vframes 1 raw_nv21_1920_1080.yuv')
-    
+
       self.raw_nv12_1920_1080 = 'raw_nv12_1920_1080.yuv'
       self.raw_nv21_1920_1080 = 'raw_nv21_1920_1080.yuv'
-    
+
       self.raw_nv12_1280_720 = 'raw_nv12_1280_720.yuv'
       self.raw_nv21_1280_720 = 'raw_nv21_1280_720.yuv'
 
@@ -75,7 +75,7 @@ class Resources:
     img_blue.save(self.blue)
     img_white.save(self.white)
     img_black.save(self.black)
-  
+
   def __del__(self):
     os.remove(self.red)
     os.remove(self.green)
@@ -197,12 +197,12 @@ class TestColorscope(unittest.TestCase):
     cr_rgb = ColorReaderRgbMock(img_loader)
     rgb = cr_rgb.read_rect_color(self.res.rect)
     self.assertEqual(rgb , [255, 0, 0])
-  
+
   def test_color_hsv_red(self):
     img_file = self.res.red
     img_loader = colorscope.ImageLoaderDefault(img_file)
-    cr_rgb = ColorReaderHsvMock(img_loader)
-    hsv = cr_rgb.read_rect_color(self.res.rect)
+    cr_hsv = ColorReaderHsvMock(img_loader)
+    hsv = cr_hsv.read_rect_color(self.res.rect)
     self.assertEqual(hsv , [0, 255, 255])
 
   def test_color_yuv_red(self):
@@ -211,7 +211,7 @@ class TestColorscope(unittest.TestCase):
     cr_yuv = ColorReaderYuvMock(img_loader)
     yuv = cr_yuv.read_rect_color(self.res.rect)
     self.assertEqual(yuv, [76, 91, 255])
-  
+
   def test_color_filter_median_red(self):
     img_file = self.res.red
     color_filter = colorscope.ColorChannelFilterMedian()
@@ -230,14 +230,21 @@ class TestColorscope(unittest.TestCase):
      cr_rgb = ColorReaderRgbMock(img_loader)
      rgb = cr_rgb.read_rect_color(self.res.rect)
      self.assertEqual(rgb , [0, 255, 0])
-  
+
+  def test_color_hsv_green(self):
+     img_file = self.res.green
+     img_loader = colorscope.ImageLoaderDefault(img_file)
+     cr_hsv = ColorReaderRgbMock(img_loader)
+     hsv = cr_hsv.read_rect_color(self.res.rect)
+     self.assertEqual(hsv , [60, 255, 255])
+
   def test_color_yuv_green(self):
     img_file = self.res.green
     img_loader = colorscope.ImageLoaderDefault(img_file)
     cr_yuv = ColorReaderYuvMock(img_loader)
     yuv = cr_yuv.read_rect_color(self.res.rect)
     self.assertEqual(yuv, [150, 54, 0])
-  
+
   def test_color_filter_median_green(self):
     img_file = self.res.green
     color_filter = colorscope.ColorChannelFilterMedian()
@@ -256,14 +263,21 @@ class TestColorscope(unittest.TestCase):
      cr_rgb = ColorReaderRgbMock(img_loader)
      rgb = cr_rgb.read_rect_color(self.res.rect)
      self.assertEqual(rgb , [0, 0, 255])
-  
+
+  def test_color_hsv_blue(self):
+     img_file = self.res.blue
+     img_loader = colorscope.ImageLoaderDefault(img_file)
+     cr_hsv = ColorReaderRgbMock(img_loader)
+     hsv = cr_hsv.read_rect_color(self.res.rect)
+     self.assertEqual(hsv , [120, 255, 255])
+
   def test_color_yuv_blue(self):
     img_file = self.res.blue
     img_loader = colorscope.ImageLoaderDefault(img_file)
     cr_yuv = ColorReaderYuvMock(img_loader)
     yuv = cr_yuv.read_rect_color(self.res.rect)
     self.assertEqual(yuv, [29, 239, 103])
-  
+
   def test_color_filter_median_blue(self):
     img_file = self.res.blue
     color_filter = colorscope.ColorChannelFilterMedian()
@@ -282,14 +296,21 @@ class TestColorscope(unittest.TestCase):
      cr_rgb = ColorReaderRgbMock(img_loader)
      rgb = cr_rgb.read_rect_color(self.res.rect)
      self.assertEqual(rgb , [0, 0, 0])
-  
+
+  def test_color_hsv_black(self):
+     img_file = self.res.black
+     img_loader = colorscope.ImageLoaderDefault(img_file)
+     cr_hsv = ColorReaderRgbMock(img_loader)
+     hsv = cr_hsv.read_rect_color(self.res.rect)
+     self.assertEqual(hsv , [0, 0, 0])
+
   def test_color_yuv_black(self):
     img_file = self.res.black
     img_loader = colorscope.ImageLoaderDefault(img_file)
     cr_yuv = ColorReaderYuvMock(img_loader)
     yuv = cr_yuv.read_rect_color(self.res.rect)
     self.assertEqual(yuv, [0, 128, 128])
-  
+
   def test_color_filter_median_black(self):
     img_file = self.res.black
     color_filter = colorscope.ColorChannelFilterMedian()
@@ -308,14 +329,21 @@ class TestColorscope(unittest.TestCase):
      cr_rgb = ColorReaderRgbMock(img_loader)
      rgb = cr_rgb.read_rect_color(self.res.rect)
      self.assertEqual(rgb , [255, 255, 255])
-  
+
+  def test_color_hsv_white(self):
+     img_file = self.res.white
+     img_loader = colorscope.ImageLoaderDefault(img_file)
+     cr_hsv = ColorReaderRgbMock(img_loader)
+     hsv = cr_hsv.read_rect_color(self.res.rect)
+     self.assertEqual(hsv , [255, 255, 255])
+
   def test_color_yuv_white(self):
     img_file = self.res.white
     img_loader = colorscope.ImageLoaderDefault(img_file)
     cr_yuv = ColorReaderYuvMock(img_loader)
     yuv = cr_yuv.read_rect_color(self.res.rect)
     self.assertEqual(yuv, [255, 128, 128])
-  
+
   def test_color_filter_median_white(self):
     img_file = self.res.white
     color_filter = colorscope.ColorChannelFilterMedian()
@@ -335,7 +363,7 @@ class TestColorscope(unittest.TestCase):
       start_pos = [50, 50]
       timeout = 3
       x, y = start_pos
-    
+
       sleep(timeout)
       fake_mouse.click(x, y)
       fake_keyboard.tap_esc()

@@ -251,7 +251,7 @@ def main():
   )
 
   parser.add_argument(
-      '-filt',
+      '-flt',
       '--filter',
       type=str,
       help='Output med, avg (Default: avg)',

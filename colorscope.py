@@ -224,6 +224,7 @@ class ColorReaderHSV(ColorReader):
   def _get_color_format(self, img_roi):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2HSV)
 
+
 class ColorReaderHLS(ColorReader):
   def __init__(self, filename, filter_type='avg'):
     super().__init__(filename, filter_type)

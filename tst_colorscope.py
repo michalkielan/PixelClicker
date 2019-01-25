@@ -104,12 +104,12 @@ class TestColorscope(unittest.TestCase):
 
   def test_factory_color_read_create(self):
     imloader = colorscope.ImageLoaderDefault(self.res.red)
-    colorscope.ColorReader.create('rgb', imloader)
-    colorscope.ColorReader.create('yuv', imloader)
+    colorscope.ColorReader.create('rgb', imloader, 'avg')
+    colorscope.ColorReader.create('yuv', imloader, 'avg')
 
     with self.assertRaises(AttributeError):
-      colorscope.ColorReader.create('', '')
-      colorscope.ColorReader.create('invalid', '')
+      colorscope.ColorReader.create('', '', '')
+      colorscope.ColorReader.create('invalid', '', '')
 
   def test_colorscope_instances(self):
     imloader = colorscope.ImageLoaderDefault(self.res.red)
@@ -151,7 +151,7 @@ class TestColorscope(unittest.TestCase):
     if not is_windows():
       with self.assertRaises(ValueError):
         imloader = colorscope.ImageLoader.create(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
-        colorscope.ColorReader.create('rgb', imloader)
+        colorscope.ColorReader.create('rgb', imloader, '')
 
   def test_image_loader_nv12_1080p(self):
     if not is_windows():

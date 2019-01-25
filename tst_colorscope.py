@@ -336,7 +336,7 @@ class TestColorscope(unittest.TestCase):
      img_loader = colorscope.ImageLoaderDefault(img_file)
      cr_hsv = ColorReaderHsvMock(img_loader)
      hsv = cr_hsv.read_rect_color(self.res.rect)
-     self.assertEqual(hsv , [255, 255, 255])
+     self.assertEqual(hsv, [0, 0, 255])
 
   def test_color_yuv_white(self):
     img_file = self.res.white
@@ -355,7 +355,7 @@ class TestColorscope(unittest.TestCase):
     img_file = self.res.white
     color_filter = colorscope.ColorChannelFilterAverage()
     r, g, b = color_filter.filter(cv2.imread(img_file))
-    self.assertEqual([b, g, r] , [0, 0, 255])
+    self.assertEqual([b, g, r] , [255, 255, 255])
 
   def close_window(self):
     if fake_xwindow_supported():

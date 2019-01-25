@@ -94,6 +94,11 @@ class ColorReaderYuvMock(colorscope.ColorReaderYUV):
     return super().read_rect_color(pos)
 
 
+class ColorReaderHsvMock(colorscope.ColorReaderHSV):
+  def read_rect_color(self, pos):
+    return super().read_rect_color(pos)
+
+
 class TestColorscope(unittest.TestCase):
   def setUp(self):
     if fake_xwindow_supported():
@@ -115,6 +120,7 @@ class TestColorscope(unittest.TestCase):
     imloader = colorscope.ImageLoaderDefault(self.res.red)
     csRGB = colorscope.ColorReaderRGB(imloader)
     csYUV = colorscope.ColorReaderYUV(imloader)
+    csHSV = colorscope.ColorReaderHSV(imloader)
 
     with self.assertRaises(TypeError):
       csINV = colorscope.ColorReader(imloader)
@@ -192,6 +198,13 @@ class TestColorscope(unittest.TestCase):
     rgb = cr_rgb.read_rect_color(self.res.rect)
     self.assertEqual(rgb , [255, 0, 0])
   
+  def test_color_hsv_red(self):
+    img_file = self.res.red
+    img_loader = colorscope.ImageLoaderDefault(img_file)
+    cr_rgb = ColorReaderHsvMock(img_loader)
+    hsv = cr_rgb.read_rect_color(self.res.rect)
+    self.assertEqual(hsv , [0, 255, 255])
+
   def test_color_yuv_red(self):
     img_file = self.res.red
     img_loader = colorscope.ImageLoaderDefault(img_file)

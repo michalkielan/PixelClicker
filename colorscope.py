@@ -9,32 +9,50 @@ import numpy as np
 import cv2
 
 
-class ColorChannelFilter:
-  def __init__(self, img):
-    self.__img = img
-    self.__channel_data = self.__get_channel_data()
+class ColorChannelFilter(metaclass=abc.ABCMeta):
+  @abc.abstractmethod
+  def filter(self, img):
+    pass
 
-  def __get_channel_data(self):
-    h, w, num_channels = self.__img.shape
+  def _get_channel_data(self, img):
+    h, w, num_channels = img.shape
     channel_data = [[] for i in range(num_channels)]
     for y in range(0, h):
       for x in range(0, w):
-        channels = self.__img[y, x, :]
+        channels = img[y, x, :]
         for i in range(0, num_channels):
           channel_data[i].append(int(channels[i]))
     return channel_data
 
-  def median(self):
+
+class ColorChannelFilterMedian(ColorChannelFilter):
+  def __median(self, img):
     channel_filtered = []
-    for channel_val in self.__channel_data:
+    channel_data = self._get_channel_data(img)
+    for channel_val in channel_data:
       channel_filtered.append(int(np.median(channel_val)))
     return channel_filtered
 
-  def average(self):
+  def filter(self, img):
+    return self.__median(img)
+
+
+class ColorChannelFilterAverage(ColorChannelFilter):
+  def __average(self, img):
     channel_filtered = []
-    for channel_val in self.__channel_data:
+    channel_data = self._get_channel_data(img)
+    for channel_val in channel_data:
       channel_filtered.append(int(np.average(channel_val)))
     return channel_filtered
+
+  def filter(self, img):
+    return self.__average(img)
+
+
+def filter_factory(filter_type):
+  if filter_type == 'med':
+    return ColorChannelFilterMedian()
+  return ColorChannelFilterAverage()
 
 
 class MouseRectDrawer:
@@ -111,10 +129,11 @@ def image_loader_factory(img_filename, pixel_format='', size=None):
 
 
 class ColorReader(metaclass=abc.ABCMeta):
-  def __init__(self, image_loader):
+  def __init__(self, image_loader, filtering):
     rect_color = (0, 0, 255)
     self.__window = 'ColorScope'
     self._img = image_loader.imread()
+    self._filter = filtering
     if self._img is None:
       raise AttributeError('ColorReader.__init__: image load failed')
 
@@ -135,8 +154,7 @@ class ColorReader(metaclass=abc.ABCMeta):
 
     roi = self._img[min_y:max_y, min_x:max_x]
 
-    color_filter = ColorChannelFilter(self._get_color_format(roi))
-    return color_filter.median()
+    return self._filter.filter(self._get_color_format(roi))
 
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
@@ -168,8 +186,8 @@ class ColorReader(metaclass=abc.ABCMeta):
 
 
 class ColorReaderRGB(ColorReader):
-  def __init__(self, filename):
-    super().__init__(filename)
+  def __init__(self, filename, filtering):
+    super().__init__(filename, filtering)
     print('R\tG\tB')
 
   def _get_color_format(self, img_roi):
@@ -177,19 +195,19 @@ class ColorReaderRGB(ColorReader):
 
 
 class ColorReaderYUV(ColorReader):
-  def __init__(self, filename):
-    super().__init__(filename)
+  def __init__(self, filename, filtering):
+    super().__init__(filename, filtering)
     print('Y\tU\tV')
 
   def _get_color_format(self, img_roi):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
 
 
-def make_color_reader(color_format, image_loader):
+def make_color_reader(color_format, image_loader, filtering):
   if color_format == 'rgb':
-    return ColorReaderRGB(image_loader)
+    return ColorReaderRGB(image_loader, filtering)
   if color_format == 'yuv':
-    return ColorReaderYUV(image_loader)
+    return ColorReaderYUV(image_loader, filtering)
   raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 def parse_video_size_arg(video_size):
@@ -230,19 +248,29 @@ def main():
       default='rgb'
   )
 
+  parser.add_argument(
+      '-filt',
+      '--filter',
+      type=str,
+      help='Output med, avg (Default: avg)',
+      default='avg'
+  )
+
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()
   video_size = parse_video_size_arg(args.video_size)
+  filter_type = args.filter.lower()
   img_file = args.imgfile
 
   if not os.path.exists(img_file):
     sys.exit('File not found')
 
+  filtering = filter_factory(filter_type)
   image_loader = image_loader_factory(img_file, pixel_format, video_size)
 
   try:
-    color_reader = make_color_reader(output_format, image_loader)
+    color_reader = make_color_reader(output_format, image_loader, filtering)
     color_reader.processing()
   except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]

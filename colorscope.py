@@ -24,6 +24,11 @@ class ColorChannelFilter(metaclass=abc.ABCMeta):
           channel_data[i].append(int(channels[i]))
     return channel_data
 
+  @staticmethod
+  def create(filter_type):
+    if filter_type == 'med':
+      return ColorChannelFilterMedian()
+    return ColorChannelFilterAverage()
 
 class ColorChannelFilterMedian(ColorChannelFilter):
   def __median(self, img):
@@ -49,33 +54,27 @@ class ColorChannelFilterAverage(ColorChannelFilter):
     return self.__average(img)
 
 
-def filter_factory(filter_type):
-  if filter_type == 'med':
-    return ColorChannelFilterMedian()
-  return ColorChannelFilterAverage()
-
-
-class MouseRectDrawer:
+class RectDrawer:
   def __init__(self, window, image, color):
-    self.__is_drawing = False
+    self.__is_draw = False
     self.__start_pos = [0, 0]
     self.__color = color
     self.__window = window
     self.__img = image
     self.__img_mark = self.__img.copy()
 
-  def mouse_down_event(self, pos):
-    self.__is_drawing = True
+  def start(self, pos):
+    self.__is_draw = True
     self.__start_pos = pos
 
-  def mouse_move_event(self, pos):
-    if self.__is_drawing:
+  def draw(self, pos):
+    if self.__is_draw:
       self.__img = self.__img_mark.copy()
       cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
       cv2.imshow(self.__window, self.__img)
 
-  def mouse_up_event(self, pos):
-    self.__is_drawing = False
+  def end(self, pos):
+    self.__is_draw = False
     cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
     cv2.imshow(self.__window, self.__img)
 
@@ -85,8 +84,18 @@ class ImageLoader(metaclass=abc.ABCMeta):
   def imread(self):
     pass
 
+  @staticmethod
+  def create(img_filename, pixel_format='', size=None):
+    if pixel_format == 'nv21':
+      return ImageLoaderRawNV21(img_filename, size)
+    if pixel_format == 'nv12':
+      return ImageLoaderRawNV12(img_filename, size)
+    if pixel_format == '':
+      return ImageLoaderDefault(img_filename)
+    raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
 
-class ImageDefaultLoader(ImageLoader):
+
+class ImageLoaderDefault(ImageLoader):
   def __init__(self, filename):
     self.__filename = filename
 
@@ -118,27 +127,17 @@ class ImageLoaderRawNV12(ImageLoaderRawNV21):
     return cv2.cvtColor(raw_img, cv2.COLOR_YUV2BGR_NV12)
 
 
-def image_loader_factory(img_filename, pixel_format='', size=None):
-  if pixel_format == 'nv21':
-    return ImageLoaderRawNV21(img_filename, size)
-  if pixel_format == 'nv12':
-    return ImageLoaderRawNV12(img_filename, size)
-  if pixel_format == '':
-    return ImageDefaultLoader(img_filename)
-  raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
-
-
 class ColorReader(metaclass=abc.ABCMeta):
-  def __init__(self, image_loader, filtering):
+  def __init__(self, image_loader, filter_type):
     rect_color = (0, 0, 255)
     self.__window = 'ColorScope'
     self._img = image_loader.imread()
-    self._filter = filtering
+    self._filter = ColorChannelFilter.create(filter_type)
     if self._img is None:
       raise AttributeError('ColorReader.__init__: image load failed')
 
     self._img_mark = self._img.copy()
-    self.__mouse_drawer = MouseRectDrawer(self.__window, self._img, rect_color)
+    self.__drawer = RectDrawer(self.__window, self._img, rect_color)
     self.__rect = [[0, 0], [0, 0]]
 
   @abc.abstractmethod
@@ -159,14 +158,14 @@ class ColorReader(metaclass=abc.ABCMeta):
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
     if event == cv2.EVENT_LBUTTONDOWN:
-      self.__mouse_drawer.mouse_down_event((x, y))
+      self.__drawer.start((x, y))
       self.__rect[0] = [x, y]
 
     elif event == cv2.EVENT_MOUSEMOVE:
-      self.__mouse_drawer.mouse_move_event((x, y))
+      self.__drawer.draw((x, y))
 
     elif event == cv2.EVENT_LBUTTONUP:
-      self.__mouse_drawer.mouse_up_event((x, y))
+      self.__drawer.end((x, y))
       self.__rect[1] = [x, y]
       if self.__rect[0] != self.__rect[1]:
         color = self.read_rect_color(self.__rect)
@@ -177,38 +176,39 @@ class ColorReader(metaclass=abc.ABCMeta):
     cv2.setMouseCallback(self.__window, self.__on_mouse_event)
     while True:
       pressedkey = cv2.waitKey(100)
-      if pressedkey == 27:
+      if pressedkey == 27 or pressedkey == ord('q'):
         cv2.destroyAllWindows()
         break
       if cv2.getWindowProperty(self.__window, cv2.WND_PROP_VISIBLE) < 1:
         break
     cv2.destroyAllWindows()
 
+  @staticmethod
+  def create(color_format, image_loader):
+    if color_format == 'rgb':
+      return ColorReaderRGB(image_loader)
+    if color_format == 'yuv':
+      return ColorReaderYUV(image_loader)
+    raise AttributeError('make_color_reader: ' + color_format + ' not found')
+
 
 class ColorReaderRGB(ColorReader):
-  def __init__(self, filename, filtering):
-    super().__init__(filename, filtering)
-    print('R\tG\tB')
+  def __init__(self, filename, filter_type='avb'):
+    super().__init__(filename, filter_type)
+    print('R', 'G', 'B', sep='\t')
 
   def _get_color_format(self, img_roi):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2RGB)
 
 
 class ColorReaderYUV(ColorReader):
-  def __init__(self, filename, filtering):
-    super().__init__(filename, filtering)
-    print('Y\tU\tV')
+  def __init__(self, filename, filter_type='avg'):
+    super().__init__(filename, filter_type)
+    print('Y', 'U', 'V', sep='\t')
 
   def _get_color_format(self, img_roi):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
 
-
-def make_color_reader(color_format, image_loader, filtering):
-  if color_format == 'rgb':
-    return ColorReaderRGB(image_loader, filtering)
-  if color_format == 'yuv':
-    return ColorReaderYUV(image_loader, filtering)
-  raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 def parse_video_size_arg(video_size):
   if video_size != '':
@@ -269,8 +269,10 @@ def main():
   filtering = filter_factory(filter_type)
   image_loader = image_loader_factory(img_file, pixel_format, video_size)
 
+  image_loader = ImageLoader.create(img_file, pixel_format, video_size)
+
   try:
-    color_reader = make_color_reader(output_format, image_loader, filtering)
+    color_reader = ColorReader.create(output_format, image_loader, filtering)
     color_reader.processing()
   except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]

@@ -67,18 +67,18 @@ class ImageLoader(metaclass=abc.ABCMeta):
   def imread(self):
     pass
 
+  @staticmethod
   def create(img_filename, pixel_format='', size=None):
     if pixel_format == 'nv21':
       return ImageLoaderRawNV21(img_filename, size)
     if pixel_format == 'nv12':
       return ImageLoaderRawNV12(img_filename, size)
     if pixel_format == '':
-      return ImageDefaultLoader(img_filename)
+      return ImageLoaderDefault(img_filename)
     raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
-  create = staticmethod(create)
 
 
-class ImageDefaultLoader(ImageLoader):
+class ImageLoaderDefault(ImageLoader):
   def __init__(self, filename):
     self.__filename = filename
 
@@ -165,14 +165,14 @@ class ColorReader(metaclass=abc.ABCMeta):
       if cv2.getWindowProperty(self.__window, cv2.WND_PROP_VISIBLE) < 1:
         break
     cv2.destroyAllWindows()
-  
+
+  @staticmethod
   def create(color_format, image_loader):
     if color_format == 'rgb':
       return ColorReaderRGB(image_loader)
     if color_format == 'yuv':
       return ColorReaderYUV(image_loader)
     raise AttributeError('make_color_reader: ' + color_format + ' not found')
-  create = staticmethod(create)
 
 
 class ColorReaderRGB(ColorReader):

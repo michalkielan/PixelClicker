@@ -128,6 +128,7 @@ class TestColorscope(unittest.TestCase):
     csRGB = colorscope.ColorReaderRGB(imloader)
     csYUV = colorscope.ColorReaderYUV(imloader)
     csHSV = colorscope.ColorReaderHSV(imloader)
+    csHLS = colorscope.ColorReaderHLS(imloader)
 
     with self.assertRaises(TypeError):
       csINV = colorscope.ColorReader(imloader)

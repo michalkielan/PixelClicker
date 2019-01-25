@@ -62,10 +62,20 @@ class MouseRectDrawer:
     cv2.imshow(self.__window, self.__img)
 
 
-class ImageLoader(metaclass=abc.ABCMeta):
+class IImageLoader(metaclass=abc.ABCMeta):
   @abc.abstractmethod
   def imread(self):
     pass
+
+  def factory(img_filename, pixel_format='', size=None):
+    if pixel_format == 'nv21':
+      return ImageLoaderRawNV21(img_filename, size)
+    if pixel_format == 'nv12':
+      return ImageLoaderRawNV12(img_filename, size)
+    if pixel_format == '':
+      return ImageDefaultLoader(img_filename)
+    raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
+  factory = staticmethod(factory)
 
 
 class ImageDefaultLoader(ImageLoader):
@@ -100,17 +110,20 @@ class ImageLoaderRawNV12(ImageLoaderRawNV21):
     return cv2.cvtColor(raw_img, cv2.COLOR_YUV2BGR_NV12)
 
 
-def image_loader_factory(img_filename, pixel_format='', size=None):
-  if pixel_format == 'nv21':
-    return ImageLoaderRawNV21(img_filename, size)
-  if pixel_format == 'nv12':
-    return ImageLoaderRawNV12(img_filename, size)
-  if pixel_format == '':
-    return ImageDefaultLoader(img_filename)
-  raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
-
-
 class ColorReader(metaclass=abc.ABCMeta):
+  @abc.abstractmethod
+  def _get_color_format(self, img_roi):
+    pass
+
+  def create(color_format, image_loader):
+    if color_format == 'rgb':
+      return ColorReaderRGB(image_loader)
+    if color_format == 'yuv':
+      return ColorReaderYUV(image_loader)
+    raise AttributeError('make_color_reader: ' + color_format + ' not found')
+  factory = staticmethod(factory)
+
+class ColorReader(ColorReader):
   def __init__(self, image_loader):
     rect_color = (0, 0, 255)
     self.__window = 'ColorScope'
@@ -185,12 +198,6 @@ class ColorReaderYUV(ColorReader):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
 
 
-def make_color_reader(color_format, image_loader):
-  if color_format == 'rgb':
-    return ColorReaderRGB(image_loader)
-  if color_format == 'yuv':
-    return ColorReaderYUV(image_loader)
-  raise AttributeError('make_color_reader: ' + color_format + ' not found')
 
 def parse_video_size_arg(video_size):
   if video_size != '':
@@ -239,10 +246,10 @@ def main():
   if not os.path.exists(img_file):
     sys.exit('File not found')
 
-  image_loader = image_loader_factory(img_file, pixel_format, video_size)
+  image_loader = IImageLoader.factory(img_file, pixel_format, video_size)
 
   try:
-    color_reader = make_color_reader(output_format, image_loader)
+    color_reader = IColorReader.factory(output_format, image_loader)
     color_reader.processing()
   except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]

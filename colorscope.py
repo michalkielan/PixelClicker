@@ -37,7 +37,7 @@ class ColorChannelFilter:
     return channel_filtered
 
 
-class MouseRectDrawer:
+class RectDrawer:
   def __init__(self, window, image, color):
     self.__is_drawing = False
     self.__start_pos = [0, 0]
@@ -46,28 +46,28 @@ class MouseRectDrawer:
     self.__img = image
     self.__img_mark = self.__img.copy()
 
-  def mouse_down_event(self, pos):
+  def start(self, pos):
     self.__is_drawing = True
     self.__start_pos = pos
 
-  def mouse_move_event(self, pos):
+  def drawing(self, pos):
     if self.__is_drawing:
       self.__img = self.__img_mark.copy()
       cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
       cv2.imshow(self.__window, self.__img)
 
-  def mouse_up_event(self, pos):
+  def end(self, pos):
     self.__is_drawing = False
     cv2.rectangle(self.__img, self.__start_pos, pos, self.__color, 1)
     cv2.imshow(self.__window, self.__img)
 
 
-class IImageLoader(metaclass=abc.ABCMeta):
+class ImageLoader(metaclass=abc.ABCMeta):
   @abc.abstractmethod
   def imread(self):
     pass
 
-  def factory(img_filename, pixel_format='', size=None):
+  def create(img_filename, pixel_format='', size=None):
     if pixel_format == 'nv21':
       return ImageLoaderRawNV21(img_filename, size)
     if pixel_format == 'nv12':
@@ -75,7 +75,7 @@ class IImageLoader(metaclass=abc.ABCMeta):
     if pixel_format == '':
       return ImageDefaultLoader(img_filename)
     raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
-  factory = staticmethod(factory)
+  create = staticmethod(create)
 
 
 class ImageDefaultLoader(ImageLoader):
@@ -111,19 +111,6 @@ class ImageLoaderRawNV12(ImageLoaderRawNV21):
 
 
 class ColorReader(metaclass=abc.ABCMeta):
-  @abc.abstractmethod
-  def _get_color_format(self, img_roi):
-    pass
-
-  def create(color_format, image_loader):
-    if color_format == 'rgb':
-      return ColorReaderRGB(image_loader)
-    if color_format == 'yuv':
-      return ColorReaderYUV(image_loader)
-    raise AttributeError('make_color_reader: ' + color_format + ' not found')
-  factory = staticmethod(factory)
-
-class ColorReader(ColorReader):
   def __init__(self, image_loader):
     rect_color = (0, 0, 255)
     self.__window = 'ColorScope'
@@ -132,7 +119,7 @@ class ColorReader(ColorReader):
       raise AttributeError('ColorReader.__init__: image load failed')
 
     self._img_mark = self._img.copy()
-    self.__mouse_drawer = MouseRectDrawer(self.__window, self._img, rect_color)
+    self.__drawer = RectDrawer(self.__window, self._img, rect_color)
     self.__rect = [[0, 0], [0, 0]]
 
   @abc.abstractmethod
@@ -154,14 +141,14 @@ class ColorReader(ColorReader):
   def __on_mouse_event(self, event, x, y, flags, param):
     del flags, param
     if event == cv2.EVENT_LBUTTONDOWN:
-      self.__mouse_drawer.mouse_down_event((x, y))
+      self.__drawer.start((x, y))
       self.__rect[0] = [x, y]
 
     elif event == cv2.EVENT_MOUSEMOVE:
-      self.__mouse_drawer.mouse_move_event((x, y))
+      self.__drawer.drawing((x, y))
 
     elif event == cv2.EVENT_LBUTTONUP:
-      self.__mouse_drawer.mouse_up_event((x, y))
+      self.__drawer.end((x, y))
       self.__rect[1] = [x, y]
       if self.__rect[0] != self.__rect[1]:
         color = self.read_rect_color(self.__rect)
@@ -178,6 +165,14 @@ class ColorReader(ColorReader):
       if cv2.getWindowProperty(self.__window, cv2.WND_PROP_VISIBLE) < 1:
         break
     cv2.destroyAllWindows()
+  
+  def create(color_format, image_loader):
+    if color_format == 'rgb':
+      return ColorReaderRGB(image_loader)
+    if color_format == 'yuv':
+      return ColorReaderYUV(image_loader)
+    raise AttributeError('make_color_reader: ' + color_format + ' not found')
+  create = staticmethod(create)
 
 
 class ColorReaderRGB(ColorReader):
@@ -196,7 +191,6 @@ class ColorReaderYUV(ColorReader):
 
   def _get_color_format(self, img_roi):
     return cv2.cvtColor(img_roi, cv2.COLOR_BGR2YUV)
-
 
 
 def parse_video_size_arg(video_size):
@@ -246,10 +240,10 @@ def main():
   if not os.path.exists(img_file):
     sys.exit('File not found')
 
-  image_loader = IImageLoader.factory(img_file, pixel_format, video_size)
+  image_loader = ImageLoader.create(img_file, pixel_format, video_size)
 
   try:
-    color_reader = IColorReader.factory(output_format, image_loader)
+    color_reader = ColorReader.create(output_format, image_loader)
     color_reader.processing()
   except (AttributeError, ValueError) as err:
     err = sys.exc_info()[1]

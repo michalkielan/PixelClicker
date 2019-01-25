@@ -19,6 +19,7 @@ def is_windows():
   return False
 
 if fake_xwindow_supported():
+  from xvfbwrapper import Xvfb
   from pykeyboard import PyKeyboard
   from pymouse import PyMouse
 
@@ -96,20 +97,19 @@ class ColorReaderYuvMock(colorscope.ColorReaderYUV):
 class TestColorscope(unittest.TestCase):
   def setUp(self):
     if fake_xwindow_supported():
-      from xvfbwrapper import Xvfb
       self.xvfb = Xvfb(width = 1280, height = 720)
       self.addCleanup(self.xvfb.stop)
       self.xvfb.start()
     self.res = Resources()
 
-  def test_factory_create(self):
+  def test_factory_color_read_create(self):
     imloader = colorscope.ImageDefaultLoader(self.res.red)
-    colorscope.make_color_reader('rgb', imloader)
-    colorscope.make_color_reader('yuv', imloader)
+    colorscope.ColorReader.create('rgb', imloader)
+    colorscope.ColorReader.create('yuv', imloader)
 
     with self.assertRaises(AttributeError):
-      colorscope.make_color_reader('', '')
-      colorscope.make_color_reader('invalid', '')
+      colorscope.ColorReader.create('', '')
+      colorscope.ColorReader.create('invalid', '')
 
   def test_colorscope_instances(self):
     imloader = colorscope.ImageDefaultLoader(self.res.red)
@@ -121,7 +121,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_factory_nv12(self):
     if not is_windows():
-      imloader = colorscope.image_loader_factory(self.res.raw_nv12_1920_1080, 'nv12', [1920, 1080])
+      imloader = colorscope.ImageLoader.create(self.res.raw_nv12_1920_1080, 'nv12', [1920, 1080])
       img = imloader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])
@@ -129,7 +129,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_factory_nv21(self):
     if not is_windows():
-      imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [1920, 1080])
+      imloader = colorscope.ImageLoader.create(self.res.raw_nv21_1920_1080, 'nv21', [1920, 1080])
       img = imloader.imread()
       h, w, channels = img.shape
       self.assertEqual([1080, 1920], [h, w])
@@ -137,7 +137,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_factory_default(self):
     if not is_windows():
-      imloader = colorscope.image_loader_factory(self.res.red)
+      imloader = colorscope.ImageLoader.create(self.res.red)
       img = imloader.imread()
       h, w, channels = img.shape
       self.assertEqual([10, 10], [h, w])
@@ -145,13 +145,13 @@ class TestColorscope(unittest.TestCase):
 
   def test_image_loader_factory_failed(self):
     with self.assertRaises(AttributeError):
-      imloader = colorscope.image_loader_factory('', 'invalid', [1280, 720])
+      imloader = colorscope.ImageLoaderCreate('', 'invalid', [1280, 720])
 
   def test_image_loader_factory_wrong_size(self):
     if not is_windows():
       with self.assertRaises(ValueError):
-        imloader = colorscope.image_loader_factory(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
-        colorscope.make_color_reader('rgb', imloader)
+        imloader = colorscope.ImageLoader.create(self.res.raw_nv21_1920_1080, 'nv21', [2000, 2000])
+        colorscope.ColorReader.create('rgb', imloader)
 
   def test_image_loader_nv12_1080p(self):
     if not is_windows():

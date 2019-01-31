@@ -103,6 +103,8 @@ class GraphGenerator:
 
     size = len(self.__ref_color.get()['channels']['h'])
 
+    ref_ax = None
+    cap_ax = None
     for i in range(0, size):
       ref_channels = self.__ref_color.get()['channels']
       cap_channels = self.__cap_color.get()['channels']
@@ -114,9 +116,10 @@ class GraphGenerator:
       p2_y = cap_channels['h'][i]
 
       plt.plot([p1_x, p2_x], [p1_y, p2_y], color='black', linewidth=0.7)
-      plt.plot([p1_x, p1_x], [p1_y, p1_y], 'bs-', linewidth=0.3)
-      plt.plot([p2_x, p2_x], [p2_y, p2_y], 'ro-')
+      ref_ax, = plt.plot([p1_x, p1_x], [p1_y, p1_y], 'bs-', linewidth=0.3, label='ref')
+      cap_ax, = plt.plot([p2_x, p2_x], [p2_y, p2_y], 'ro-', label='cap')
 
+    plt.legend(handles=[ref_ax, cap_ax])
     plt.show()
 
   @staticmethod

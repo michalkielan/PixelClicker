@@ -8,6 +8,7 @@ import ip.colorjson
 import ip.colormeter
 import matplotlib.pyplot as plt
 
+
 class Const:
   class Symbols:
     @staticmethod
@@ -16,7 +17,7 @@ class Const:
 
   @staticmethod
   def get_max_hue():
-    return 180
+    return 179
 
   @staticmethod
   def get_max_saturation():
@@ -48,6 +49,10 @@ class GraphHS:
   def __init__(self, ref_json_filename, cap_json_filename):
     self.__ref_color = ip.colorjson.ColorJsonParser(ref_json_filename)
     self.__cap_color = ip.colorjson.ColorJsonParser(cap_json_filename)
+    self.__title = 'HS Error graph'
+    self.__xlabel = 'S'
+    self.__ylabel = 'H'
+
     if self.__ref_color.get()['format'] != 'hls' or self.__cap_color.get()['format'] != 'hls':
       raise ValueError('Wrong format, HSL only supported (so far)')
 
@@ -86,15 +91,14 @@ class GraphHS:
     print(Const.Symbols.delta() + 'S [average] : ', round(s_perc, 2), '%', sep='')
 
     img = self.__generate_hs()
-    
-    img_graph = img
 
     plt.ylim((0, self.__get_max_hue() - 1))
-    plt.xlim(0, self.__get_max_saturation())
-    plt.xlabel('Saturation')
-    plt.ylabel('Hue')
+    plt.xlim(0, self.__get_max_saturation() - 1)
+    plt.title(self.__title)
+    plt.xlabel(self.__xlabel)
+    plt.ylabel(self.__ylabel)
 
-    plt.imshow(cv2.cvtColor(img_graph, cv2.COLOR_BGR2RGB))
+    plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     x = np.arange(30)
     plt.gca().invert_yaxis()
 

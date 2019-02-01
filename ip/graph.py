@@ -58,7 +58,6 @@ class PlaneHS:
 
 
   def get_plot(self):
-     print('size: ', self.__plane.shape[0], self.__plane.shape[1])
      return self.__plane
 
 

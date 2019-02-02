@@ -6,6 +6,9 @@ language: python
 python:
   - "3.5"
 
+env:
+  - TRAVIS_TEST_ONLY
+
 addons:
   apt:
     sources:

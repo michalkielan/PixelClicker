@@ -579,37 +579,35 @@ class TestColorscope(unittest.TestCase):
 
   def stop_gui(self, timeout, fake_display):
     sleep(timeout)
-    print('start')
     plt.ioff()
-    print('end')
     plt.close("all")
-    print('end')
 
   def test_gui_plot(self):
     try:
-      fake_display = self.make_fake_display((1280, 720))
-      fake_display.start()
-      ref_filename = 'graph_tests_ref_json.json'
-      ref_cj = ip.colorjson.JsonSerializerHLS(ref_filename)
-      ref_cj.append([10, 10, 10])
-      ref_cj.append([10, 10, 10])
-      ref_cj.append([10, 10, 10])
-      ref_cj.write()
-
-      cap_filename = 'graph_tests_cap_json.json'
-      cap_cj = ip.colorjson.JsonSerializerHLS(cap_filename)
-      cap_cj.append([20, 20, 20])
-      cap_cj.append([20, 20, 20])
-      cap_cj.append([20, 20, 20])
-      cap_cj.write()
-
-      timeout = 3
-      closer = threading.Thread(target=self.stop_gui, args=[timeout, fake_display])
-      closer.start()
-      graph_hs = ip.graph.GraphHS(ref_filename, cap_filename)
-      graph_hs.show()
-      closer.join()
-      fake_display.stop()
+      if os.environ['TRAVIS_TEST_ONLY'] == '1':
+        fake_display = self.make_fake_display((1280, 720))
+        fake_display.start()
+        ref_filename = 'graph_tests_ref_json.json'
+        ref_cj = ip.colorjson.JsonSerializerHLS(ref_filename)
+        ref_cj.append([10, 10, 10])
+        ref_cj.append([10, 10, 10])
+        ref_cj.append([10, 10, 10])
+        ref_cj.write()
+  
+        cap_filename = 'graph_tests_cap_json.json'
+        cap_cj = ip.colorjson.JsonSerializerHLS(cap_filename)
+        cap_cj.append([20, 20, 20])
+        cap_cj.append([20, 20, 20])
+        cap_cj.append([20, 20, 20])
+        cap_cj.write()
+  
+        timeout = 3
+        closer = threading.Thread(target=self.stop_gui, args=[timeout, fake_display])
+        closer.start()
+        graph_hs = ip.graph.GraphHS(ref_filename, cap_filename)
+        graph_hs.show()
+        closer.join()
+        fake_display.stop()
     except IOError:
       pass
 

@@ -4,9 +4,9 @@
 import abc
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 import ip.colorjson
 import ip.colormeter
-import matplotlib.pyplot as plt
 
 
 class Const:
@@ -25,23 +25,23 @@ class Const:
 
   @staticmethod
   def get_max_lightness():
-     return 255
+    return 255
 
 
-def show_window(window_name):
+def show_window(window):
   while True:
     pressed_key = cv2.waitKey(100)
     if pressed_key == 27 or pressed_key == ord('q'):
       cv2.destroyAllWindows()
       break
-    if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
+    if cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1:
       break
   cv2.destroyAllWindows()
 
 
 class Graph(metaclass=abc.ABCMeta):
   @abc.abstractmethod
-  def show():
+  def show(self):
     pass
 
 
@@ -80,9 +80,7 @@ class GraphHS:
         img_hls[y, x] = [h_channel, lightness, s_channel]
     return img_hls
 
-  def show(self):
-    window_name = 'HS error graph'
-
+  def __print_stats(self):
     color_meter = ip.colormeter.ColorMeter(self.__ref_color, self.__cap_color)
     h_perc, l_perc, s_perc = color_meter.get_hls_delta_perc()
 
@@ -90,6 +88,8 @@ class GraphHS:
     print(Const.Symbols.delta() + 'L [average] : ', round(l_perc, 2), '%', sep='')
     print(Const.Symbols.delta() + 'S [average] : ', round(s_perc, 2), '%', sep='')
 
+  def show(self):
+    self.__print_stats()
     img = self.__generate_hs()
 
     plt.ylim((0, self.__get_max_hue() - 1))
@@ -97,29 +97,30 @@ class GraphHS:
     plt.title(self.__title)
     plt.xlabel(self.__xlabel)
     plt.ylabel(self.__ylabel)
-
     plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    x = np.arange(30)
-    plt.gca().invert_yaxis()
 
-    size = len(self.__ref_color.get()['channels']['h'])
+    ref_point_color = 'bs-'
+    cap_point_color = 'ro-'
 
-    ref_ax, cap_ax = None, None
-    for i in range(0, size):
-      ref_channels = self.__ref_color.get()['channels']
-      cap_channels = self.__cap_color.get()['channels']
+    for i in range(len(self.__ref_color.get()['channels']['h'])):
+      p1_x, p1_y = [
+          self.__ref_color.get()['channels']['s'][i],
+          self.__ref_color.get()['channels']['h'][i]
+      ]
 
-      p1_x = ref_channels['s'][i]
-      p1_y = ref_channels['h'][i]
-
-      p2_x = cap_channels['s'][i]
-      p2_y = cap_channels['h'][i]
+      p2_x, p2_y = [
+          self.__cap_color.get()['channels']['s'][i],
+          self.__cap_color.get()['channels']['h'][i]
+      ]
 
       plt.plot([p1_x, p2_x], [p1_y, p2_y], color='black', linewidth=0.7)
-      ref_ax, = plt.plot([p1_x, p1_x], [p1_y, p1_y], 'bs-', label='ref')
-      cap_ax, = plt.plot([p2_x, p2_x], [p2_y, p2_y], 'ro-', label='cap')
+      plt.plot([p1_x, p1_x], [p1_y, p1_y], ref_point_color)
+      plt.plot([p2_x, p2_x], [p2_y, p2_y], cap_point_color)
 
-    plt.legend(handles=[ref_ax, cap_ax])
+    ref_legend, = plt.plot([], ref_point_color, label='ref')
+    cap_legend, = plt.plot([], cap_point_color, label='cap')
+
+    plt.legend(handles=[ref_legend, cap_legend])
     plt.show()
 
   @staticmethod

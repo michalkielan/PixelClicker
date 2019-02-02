@@ -428,6 +428,7 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual([254, 237, 254], cjp.get()['channels']['r'])
     self.assertEqual([219, 254, 250], cjp.get()['channels']['g'])
     self.assertEqual([21, 51, 168], cjp.get()['channels']['b'])
+    os.remove(json_filename)
 
   def test_json_yuv(self):
     json_filename = 'yuv_json.json'
@@ -442,6 +443,7 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual([0, 185, 248], cjp.get()['channels']['y'])
     self.assertEqual([128, 82, 114], cjp.get()['channels']['u'])
     self.assertEqual([128, 188, 133], cjp.get()['channels']['v'])
+    os.remove(json_filename)
 
   def test_json_hsv(self):
     json_filename = 'hsv_json.json'
@@ -456,6 +458,7 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual([24, 1, 112], cjp.get()['channels']['h'])
     self.assertEqual([227, 217, 145], cjp.get()['channels']['s'])
     self.assertEqual([255, 254, 254], cjp.get()['channels']['v'])
+    os.remove(json_filename)
 
   def test_json_hls(self):
     json_filename = 'hls_json.json'
@@ -470,7 +473,81 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual([9, 61, 150], cjp.get()['channels']['h'])
     self.assertEqual([155, 234, 166], cjp.get()['channels']['l'])
     self.assertEqual([237, 253, 254], cjp.get()['channels']['s'])
+    os.remove(json_filename)
 
+  def test_colormeter(self):
+    ref_filename = 'color_meter_tests_ref_json.json'
+    ref_cj = ip.colorjson.JsonSerializerHLS(ref_filename)
+    ref_cj.append([10, 10, 10])
+    ref_cj.append([10, 10, 10])
+    ref_cj.append([10, 10, 10])
+    ref_cj.write()
+    
+    cap_filename = 'color_meter_tests_cap_json.json'
+    cap_cj = ip.colorjson.JsonSerializerHLS(cap_filename)
+    cap_cj.append([20, 20, 20])
+    cap_cj.append([20, 20, 20])
+    cap_cj.append([20, 20, 20])
+    cap_cj.write()
+    
+    ref_js = ip.colorjson.JsonDeserializer(ref_filename)
+    cap_js = ip.colorjson.JsonDeserializer(cap_filename)
+
+    color_meter = ip.colormeter.ColorMeter(ref_js, cap_js)
+    avg_h, avg_l, avg_s = color_meter.get_hls_delta_perc()
+
+    self.assertEqual(200, avg_h)
+    self.assertEqual(200, avg_l)
+    self.assertEqual(200, avg_s)
+    
+    os.remove(ref_filename)
+    os.remove(cap_filename)
+
+  def test_colormeter_failed(self):  
+    ref_yuv_filename = 'color_meter_failed_yuv_ref_json.json'
+    cap_yuv_filename = 'color_meter_failed_yuv_cap_json.json'
+    ref_rgb_filename = 'color_meter_failed_rgb_ref_json.json'
+    cap_rgb_filename = 'color_meter_failed_rgb_cap_json.json'
+    ref_hsv_filename = 'color_meter_failed_hsv_ref_json.json'
+    cap_hsv_filename = 'color_meter_failed_hsv_cap_json.json'
+
+    with self.assertRaises(AttributeError):
+      ref_ser = ip.colorjson.JsonSerializerYUV(ref_yuv_filename)
+      cap_ser = ip.colorjson.JsonSerializerYUV(cap_yuv_filename)
+      ref_ser.write()
+      cap_ser.write()
+      ref_dser = ip.colorjson.JsonDeserializer(ref_yuv_filename)
+      cap_dser = ip.colorjson.JsonDeserializer(cap_yuv_filename)
+      color_meter = ip.colormeter.ColorMeter(ref_dser, cap_dser)
+      avg = color_meter.get_hls_delta_perc()
+
+    with self.assertRaises(AttributeError):
+      ref_ser = ip.colorjson.JsonSerializerRGB(ref_rgb_filename)
+      cap_ser = ip.colorjson.JsonSerializerRGB(cap_rgb_filename)
+      ref_ser.write()
+      cap_ser.write()
+      ref_dser = ip.colorjson.JsonDeserializer(ref_rgb_filename)
+      cap_dser = ip.colorjson.JsonDeserializer(cap_rgb_filename)
+      color_meter = ip.colormeter.ColorMeter(ref_dser, cap_dser)
+      avg = color_meter.get_hls_delta_perc()
+    
+    with self.assertRaises(AttributeError):
+      ref_ser = ip.colorjson.JsonSerializerRGB(ref_hsv_filename)
+      cap_ser = ip.colorjson.JsonSerializerRGB(cap_hsv_filename)
+      ref_ser.write()
+      cap_ser.write()
+      ref_dser = ip.colorjson.JsonDeserializer(ref_hsv_filename)
+      cap_dser = ip.colorjson.JsonDeserializer(cap_hsv_filename)
+      color_meter = ip.colormeter.ColorMeter(ref_dser, cap_dser)
+      avg = color_meter.get_hls_delta_perc()
+    
+    os.remove(ref_rgb_filename)
+    os.remove(cap_rgb_filename)
+    os.remove(ref_yuv_filename)
+    os.remove(cap_yuv_filename)
+    os.remove(ref_hsv_filename)
+    os.remove(cap_hsv_filename)
+    
   def close_window(self):
     if fake_xwindow_supported():
       fake_mouse = FakeMouse()

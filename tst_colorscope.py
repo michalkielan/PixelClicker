@@ -3,6 +3,7 @@ import threading
 import os
 import sys
 import cv2
+import matplotlib.pyplot as plt
 import ip.colorreader
 import ip.imgloader
 import ip.draw
@@ -19,15 +20,15 @@ def fake_xwindow_supported():
     return True
   return False
 
-def is_windows():
-  if sys.platform == 'win64' or sys.platform == 'win32':
-    return True
-  return False
-
 if fake_xwindow_supported():
   from xvfbwrapper import Xvfb
   from pykeyboard import PyKeyboard
   from pymouse import PyMouse
+
+def is_windows():
+  if sys.platform == 'win64' or sys.platform == 'win32':
+    return True
+  return False
 
 class FakeKeyboard:
   def __init__(self):
@@ -112,11 +113,13 @@ class ColorReaderHlsMock(ip.colorreader.ColorReaderHLS):
 
 class TestColorscope(unittest.TestCase):
   def setUp(self):
-    if fake_xwindow_supported():
-      self.xvfb = Xvfb(width = 1280, height = 720)
-      self.addCleanup(self.xvfb.stop)
-      self.xvfb.start()
     self.res = Resources()
+
+  def make_fake_display(self, size):
+    if fake_xwindow_supported():
+      fake_display = Xvfb(width = 1280, height = 720)
+      return fake_display
+    raise IOError('Fake xwindow not supported')
 
   def test_const(self):
     self.assertEqual(ip.graph.Const.get_max_hue(), 179)
@@ -437,7 +440,7 @@ class TestColorscope(unittest.TestCase):
     cj.append([185, 82, 188])
     cj.append([248, 114, 133])
     cj.write()
-    
+
     cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('yuv', cjp.get()['format'])
     self.assertEqual([0, 185, 248], cjp.get()['channels']['y'])
@@ -452,7 +455,7 @@ class TestColorscope(unittest.TestCase):
     cj.append([1, 217, 254])
     cj.append([112, 145, 254])
     cj.write()
-    
+
     cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('hsv', cjp.get()['format'])
     self.assertEqual([24, 1, 112], cjp.get()['channels']['h'])
@@ -467,7 +470,7 @@ class TestColorscope(unittest.TestCase):
     cj.append([61, 234, 253])
     cj.append([150, 166, 254])
     cj.write()
-    
+
     cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('hls', cjp.get()['format'])
     self.assertEqual([9, 61, 150], cjp.get()['channels']['h'])
@@ -482,14 +485,14 @@ class TestColorscope(unittest.TestCase):
     ref_cj.append([10, 10, 10])
     ref_cj.append([10, 10, 10])
     ref_cj.write()
-    
+
     cap_filename = 'color_meter_tests_cap_json.json'
     cap_cj = ip.colorjson.JsonSerializerHLS(cap_filename)
     cap_cj.append([20, 20, 20])
     cap_cj.append([20, 20, 20])
     cap_cj.append([20, 20, 20])
     cap_cj.write()
-    
+
     ref_js = ip.colorjson.JsonDeserializer(ref_filename)
     cap_js = ip.colorjson.JsonDeserializer(cap_filename)
 
@@ -499,11 +502,11 @@ class TestColorscope(unittest.TestCase):
     self.assertEqual(200, avg_h)
     self.assertEqual(200, avg_l)
     self.assertEqual(200, avg_s)
-    
+
     os.remove(ref_filename)
     os.remove(cap_filename)
 
-  def test_colormeter_failed(self):  
+  def test_colormeter_failed(self):
     ref_yuv_filename = 'color_meter_failed_yuv_ref_json.json'
     cap_yuv_filename = 'color_meter_failed_yuv_cap_json.json'
     ref_rgb_filename = 'color_meter_failed_rgb_ref_json.json'
@@ -530,7 +533,7 @@ class TestColorscope(unittest.TestCase):
       cap_dser = ip.colorjson.JsonDeserializer(cap_rgb_filename)
       color_meter = ip.colormeter.ColorMeter(ref_dser, cap_dser)
       avg = color_meter.get_hls_delta_perc()
-    
+
     with self.assertRaises(AttributeError):
       ref_ser = ip.colorjson.JsonSerializerRGB(ref_hsv_filename)
       cap_ser = ip.colorjson.JsonSerializerRGB(cap_hsv_filename)
@@ -540,14 +543,14 @@ class TestColorscope(unittest.TestCase):
       cap_dser = ip.colorjson.JsonDeserializer(cap_hsv_filename)
       color_meter = ip.colormeter.ColorMeter(ref_dser, cap_dser)
       avg = color_meter.get_hls_delta_perc()
-    
+
     os.remove(ref_rgb_filename)
     os.remove(cap_rgb_filename)
     os.remove(ref_yuv_filename)
     os.remove(cap_yuv_filename)
     os.remove(ref_hsv_filename)
     os.remove(cap_hsv_filename)
-    
+
   def close_window(self):
     if fake_xwindow_supported():
       fake_mouse = FakeMouse()
@@ -561,15 +564,56 @@ class TestColorscope(unittest.TestCase):
       fake_keyboard.tap_esc()
 
   def test_gui_open_close(self):
-    if fake_xwindow_supported():
+    try:
+      fake_display = self.make_fake_display((1280, 720))
+      fake_display.start()
       closer = threading.Thread(target=self.close_window)
       closer.start()
       image_loader = ip.imgloader.ImageLoaderDefault(self.res.red)
       csRGB = ip.colorreader.ColorReaderRGB(image_loader, 'test.json')
       csRGB.processing()
       closer.join()
+      fake_display.stop()
+    except IOError:
+      pass
 
-  def test_main(self):
+  def stop_gui(self, timeout, fake_display):
+    sleep(timeout)
+    print('start')
+    plt.ioff()
+    print('end')
+    plt.close("all")
+    print('end')
+
+  def test_gui_plot(self):
+    try:
+      fake_display = self.make_fake_display((1280, 720))
+      fake_display.start()
+      ref_filename = 'graph_tests_ref_json.json'
+      ref_cj = ip.colorjson.JsonSerializerHLS(ref_filename)
+      ref_cj.append([10, 10, 10])
+      ref_cj.append([10, 10, 10])
+      ref_cj.append([10, 10, 10])
+      ref_cj.write()
+
+      cap_filename = 'graph_tests_cap_json.json'
+      cap_cj = ip.colorjson.JsonSerializerHLS(cap_filename)
+      cap_cj.append([20, 20, 20])
+      cap_cj.append([20, 20, 20])
+      cap_cj.append([20, 20, 20])
+      cap_cj.write()
+
+      timeout = 3
+      closer = threading.Thread(target=self.stop_gui, args=[timeout, fake_display])
+      closer.start()
+      graph_hs = ip.graph.GraphHS(ref_filename, cap_filename)
+      graph_hs.show()
+      closer.join()
+      fake_display.stop()
+    except IOError:
+      pass
+
+  def test_main_function(self):
     exe = ''
     if is_windows():
       exe = '%PYTHON%\\python.exe '

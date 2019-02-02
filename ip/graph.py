@@ -47,8 +47,8 @@ class Graph(metaclass=abc.ABCMeta):
 
 class GraphHS:
   def __init__(self, ref_json_filename, cap_json_filename):
-    self.__ref_color = ip.colorjson.ColorJsonParser(ref_json_filename)
-    self.__cap_color = ip.colorjson.ColorJsonParser(cap_json_filename)
+    self.__ref_color = ip.colorjson.JsonDeserializer(ref_json_filename)
+    self.__cap_color = ip.colorjson.JsonDeserializer(cap_json_filename)
     self.__title = 'HS Error graph'
     self.__xlabel = 'S'
     self.__ylabel = 'H'

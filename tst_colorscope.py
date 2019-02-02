@@ -119,8 +119,9 @@ class TestColorscope(unittest.TestCase):
     self.res = Resources()
 
   def test_const(self):
-    self.assertNotEqual(ip.graph.Const.ref_color(), None)
-    self.assertNotEqual(ip.graph.Const.cap_color(), None)
+    self.assertEqual(ip.graph.Const.get_max_hue(), 179)
+    self.assertEqual(ip.graph.Const.get_max_saturation(), 255)
+    self.assertEqual(ip.graph.Const.get_max_lightness(), 255)
     self.assertEqual(ip.graph.Const.Symbols.delta(), '\u0394')
 
   def test_factory_color_read_create(self):
@@ -416,13 +417,13 @@ class TestColorscope(unittest.TestCase):
 
   def test_json_rgb(self):
     json_filename = 'rgb_json.json'
-    cj = ip.colorjson.ColorJsonRGB(json_filename)
+    cj = ip.colorjson.JsonSerializerRGB(json_filename)
     cj.append([254, 219, 21])
     cj.append([237, 254, 51])
     cj.append([254, 250, 168])
     cj.write()
 
-    cjp = ip.colorjson.ColorJsonParser(json_filename)
+    cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('rgb', cjp.get()['format'])
     self.assertEqual([254, 237, 254], cjp.get()['channels']['r'])
     self.assertEqual([219, 254, 250], cjp.get()['channels']['g'])
@@ -430,13 +431,13 @@ class TestColorscope(unittest.TestCase):
 
   def test_json_yuv(self):
     json_filename = 'yuv_json.json'
-    cj = ip.colorjson.ColorJsonYUV(json_filename)
+    cj = ip.colorjson.JsonSerializerYUV(json_filename)
     cj.append([0, 128, 128])
     cj.append([185, 82, 188])
     cj.append([248, 114, 133])
     cj.write()
     
-    cjp = ip.colorjson.ColorJsonParser(json_filename)
+    cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('yuv', cjp.get()['format'])
     self.assertEqual([0, 185, 248], cjp.get()['channels']['y'])
     self.assertEqual([128, 82, 114], cjp.get()['channels']['u'])
@@ -444,13 +445,13 @@ class TestColorscope(unittest.TestCase):
 
   def test_json_hsv(self):
     json_filename = 'hsv_json.json'
-    cj = ip.colorjson.ColorJsonHSV(json_filename)
+    cj = ip.colorjson.JsonSerializerHSV(json_filename)
     cj.append([24, 227, 255])
     cj.append([1, 217, 254])
     cj.append([112, 145, 254])
     cj.write()
     
-    cjp = ip.colorjson.ColorJsonParser(json_filename)
+    cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('hsv', cjp.get()['format'])
     self.assertEqual([24, 1, 112], cjp.get()['channels']['h'])
     self.assertEqual([227, 217, 145], cjp.get()['channels']['s'])
@@ -458,13 +459,13 @@ class TestColorscope(unittest.TestCase):
 
   def test_json_hls(self):
     json_filename = 'hls_json.json'
-    cj = ip.colorjson.ColorJsonHLS(json_filename)
+    cj = ip.colorjson.JsonSerializerHLS(json_filename)
     cj.append([9, 155, 237])
     cj.append([61, 234, 253])
     cj.append([150, 166, 254])
     cj.write()
     
-    cjp = ip.colorjson.ColorJsonParser(json_filename)
+    cjp = ip.colorjson.JsonDeserializer(json_filename)
     self.assertEqual('hls', cjp.get()['format'])
     self.assertEqual([9, 61, 150], cjp.get()['channels']['h'])
     self.assertEqual([155, 234, 166], cjp.get()['channels']['l'])

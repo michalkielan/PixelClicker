@@ -584,7 +584,7 @@ class TestColorscope(unittest.TestCase):
 
   def test_gui_plot(self):
     try:
-      if os.environ['TRAVIS_TEST_ONLY'] == '1':
+      if 'TRAVIS_TEST_ONLY' in os.environ:
         fake_display = self.make_fake_display((1280, 720))
         fake_display.start()
         ref_filename = 'graph_tests_ref_json.json'

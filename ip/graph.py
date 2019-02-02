@@ -54,7 +54,7 @@ class GraphHS:
     self.__ylabel = 'H'
 
     if self.__ref_color.get()['format'] != 'hls' or self.__cap_color.get()['format'] != 'hls':
-      raise ValueError('Wrong format, HSL only supported (so far)')
+      raise ValueError('Wrong format, HLS only supported (so far)')
 
   @staticmethod
   def __get_max_hue():

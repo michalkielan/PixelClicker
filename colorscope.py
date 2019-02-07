@@ -8,6 +8,7 @@ import ip.imgloader
 import ip.colorjson
 import ip.colorreader
 import ip.graph
+import ip.qualitymeasurement
 
 
 def parse_video_size_arg(video_size):
@@ -74,14 +75,52 @@ def main():
       default=''
   )
 
+  parser.add_argument(
+  '-cp',
+  '--compare',
+  type=str,
+  nargs=7,
+  help='compare two images using given metrics',
+  )
+
+  parser.add_argument(
+  '-scp',
+  '--compare_singlechannel',
+  type=str,
+  nargs=8,
+  help='compare two images using given metrics for given channel',
+  )
+
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()
   video_size = parse_video_size_arg(args.video_size)
   filter_type = args.filter.lower()
+
   img_file = args.imgfile
   out_json_file = args.out
   gen_graph_filenames = args.gen_graph
+  compare_multichannel= args.compare
+  compare_singlechannel= args.compare_singlechannel
+
+  #colorscope -compare metrics [channelId] refImageDir [ref_pixel_format] [ref_video_size] capImageDir [cap_pixel_format] [cap_video_size]
+  if compare_multichannel:
+   metric, refImgDir, refPxlFmt, refVSz, capImgDir, capPxlFmt, capVSz  = compare_multichannel
+   image_loaderRef = ip.imgloader.create(refImgDir, refPxlFmt, refVSz)
+   image_loaderCap = ip.imgloader.create(capImgDir, capPxlFmt, capVSz)
+   if(metric != 'ssim' and metric != 'psnr'):
+      sys.exit('Unknown metric: {}'.format(metric))
+   print(ip.qualitymeasurement.QualityMeasurement.create(image_loaderRef,image_loaderCap,metric).process())
+   sys.exit(0)
+
+  if compare_singlechannel:
+   metric, channelNo, refImgDir, refPxlFmt, refVSz, capImgDir, capPxlFmt, capVSz  = compare_singlechannel
+   image_loaderRef = ip.imgloader.create(refImgDir, refPxlFmt, refVSz)
+   image_loaderCap = ip.imgloader.create(capImgDir, capPxlFmt, capVSz)
+   if(metric != 'ssim' and metric != 'psnr'):
+      sys.exit('Unknown metric: {}'.format(metric))
+   print(ip.qualitymeasurement.QualityMeasurement.create(image_loaderRef,image_loaderCap,metric+'-sc').process(int(channelNo)))
+   sys.exit(0)
 
   if gen_graph_filenames != '':
     ref_json, cap_json = gen_graph_filenames

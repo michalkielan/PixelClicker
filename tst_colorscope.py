@@ -815,7 +815,7 @@ class TestColorscope(unittest.TestCase):
     if is_windows():
       exe = '%PYTHON%\\python.exe '
     else:
-      exe = 'python '
+      exe = 'python3 '
     self.assertEqual(0, os.system(exe + ' colorscope.py -h'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i invalid.png'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i red.png -out_fmt=invalid'))
@@ -826,6 +826,10 @@ class TestColorscope(unittest.TestCase):
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile \
         red.png --output_format=invalid'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile '))
+    self.assertEqual(0,os.system(exe + 'colorscope.py -cp ssim  res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + 'colorscope.py -scp 0 ssim  res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + 'colorscope.py -cp psnr res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + 'colorscope.py -scp 0 psnr res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
 
 class TestQualitymeasures(unittest.TestCase):
   img_res_id = 'res/test_img/'

@@ -8,6 +8,7 @@ from PIL import Image
 from numpy import inf
 import cv2
 import ip
+
 # pylint: disable=unused-import
 # pylint: disable=too-many-locals
 import colorscope
@@ -834,10 +835,10 @@ class TestColorscope(unittest.TestCase):
 
 class TestQualitymeasures(unittest.TestCase):
   img_res_id = 'res/test_img/'
-  dir_ref_lena = img_res_id+'lena.png'
-  dir_cap_lena15 = img_res_id + "lena15.jpg"
-  dir_cap_lena50 = img_res_id + "lena50.jpg"
-  dir_cap_lena90 = img_res_id + "lena90.jpg"
+  dir_ref_lena = os.path.join(img_res_id, 'lena.png')
+  dir_cap_lena15 = os.path.join(img_res_id, 'lena15.jpg')
+  dir_cap_lena50 = os.path.join(img_res_id, 'lena50.jpg')
+  dir_cap_lena90 = os.path.join(img_res_id, 'lena90.jpg')
 
   def setUp(self):
     pass
@@ -846,7 +847,7 @@ class TestQualitymeasures(unittest.TestCase):
     image_loader_ref = ip.imgloader.create(self.dir_ref_lena)
     psnr1 = ip.qualitymeasurement.QualityMeasurement\
             .create(image_loader_ref, image_loader_ref, 'psnr').process()
-    self.assertEqual(psnr1, inf, "psnr =  {}".format(psnr1))
+    self.assertEqual(psnr1, inf, 'psnr =  {}'.format(psnr1))
 
   def test_pstnr_multichannel_rgb(self):
     image_loader_ref = ip.imgloader.create(self.dir_ref_lena)

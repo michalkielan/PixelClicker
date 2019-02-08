@@ -9,6 +9,7 @@ import ip.colorjson
 import ip.colorreader
 import ip.graph
 import ip.qualitymeasurement
+# pylint: disable=too-many-locals
 
 
 def parse_video_size_arg(video_size):

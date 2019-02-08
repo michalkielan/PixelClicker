@@ -1,29 +1,27 @@
 #!/usr/bin/env python3
 """Quality measurement"""
-import cv2
 import abc
-import ip.imgloader
-import abc
+from enum import IntEnum
 import numpy as np
 from skimage.measure import compare_ssim as ssim
-from enum import IntEnum
 
-class channelsRGB(IntEnum):
-   red   = 2
-   green = 1
-   blue  = 0
+class ChannelsRGB(IntEnum):
+  red = 2
+  green = 1
+  blue = 0
 
 class  QualityMeasurement(metaclass=abc.ABCMeta):
-  def create(img_loader_ref, img_loader_cap, measurementMethod=''):
-    if measurementMethod == 'ssim-sc':
-      return QualityMeasurementSSIMsingleChannel(img_loader_ref,img_loader_cap)
-    elif measurementMethod == 'ssim':
-      return QualityMeasurementSSIM(img_loader_ref,img_loader_cap)
-    elif measurementMethod == 'psnr':
-      return QualityMeasurementPSNR(img_loader_ref,img_loader_cap)
-    elif measurementMethod == 'psnr-sc':
-      return QualityMeasurementPSNRsingleChannel(img_loader_ref,img_loader_cap)
-    raise AttribiteError('quality_measure_factory method {} not found'.format(measurmentMethod))
+  @staticmethod
+  def create(img_loader_ref, img_loader_cap, measurement_method=''):
+    if measurement_method == 'ssim-sc':
+      return QualityMeasurementSSIMsingleChannel(img_loader_ref, img_loader_cap)
+    if measurement_method == 'ssim':
+      return QualityMeasurementSSIM(img_loader_ref, img_loader_cap)
+    if measurement_method == 'psnr':
+      return QualityMeasurementPSNR(img_loader_ref, img_loader_cap)
+    if measurement_method == 'psnr-sc':
+      return QualityMeasurementPSNRsingleChannel(img_loader_ref, img_loader_cap)
+    raise AttributeError('quality_measure_factory method {} not found'.format(measurement_method))
 
 
 class QualityMeasurementBase(QualityMeasurement):
@@ -35,52 +33,47 @@ class QualityMeasurementBase(QualityMeasurement):
       raise AttributeError('Incorrect input data files')
     if self._image_ref.shape != self._image_cap.shape:
       raise AttributeError('Unmatching images size')
-  def process():
-      pass
 
 
 class QualityMeasurementPSNRsingleChannel(QualityMeasurementBase):
   def __init__(self, img_loader_ref, img_loader_cap):
-      super().__init__(img_loader_ref, img_loader_cap)
-  def process(self, chNo):
-     if(self._image_ref.shape[2] <= chNo):
-       raise AttributeError("Given image has no channel number: {}. Max channel number: {}".format(chNo, self._image_ref.shape[2]-1))
-     I = self._image_ref[:,:,chNo].astype(float)
-     K = self._image_cap[:,:,chNo].astype(float)
-     MSE = (np.square(I-K)).mean()
-     MAXvalue = 255 #for 8 bits
-     if(MSE == 0):
-         return np.inf
-     PSNR = 10 * np.log10((np.square(MAXvalue))/MSE)
-     return PSNR
+    QualityMeasurementBase.__init__(self, img_loader_ref, img_loader_cap)
+  def process(self, chan_no):
+    i_mat = self._image_ref[:, :, chan_no].astype(float)
+    k_mat = self._image_cap[:, :, chan_no].astype(float)
+    mean_square_error = (np.square(i_mat-k_mat)).mean()
+    channel_max_value = 255
+    if mean_square_error == 0:
+      return np.inf
+    return 10 * np.log10((np.square(channel_max_value))/mean_square_error)
 
 
 class QualityMeasurementSSIMsingleChannel(QualityMeasurementBase):
-    def __init__(self, img_loader_ref, img_loader_cap):
-      super().__init__(img_loader_ref, img_loader_cap)
-    def process(self,chNo):
-     I = self._image_ref[:,:,chNo]
-     K = self._image_cap[:,:,chNo]
-     return ssim(I,K)
+  def __init__(self, img_loader_ref, img_loader_cap):
+    QualityMeasurementBase.__init__(self, img_loader_ref, img_loader_cap)
+  def process(self, ch_no):
+    i_mat = self._image_ref[:, :, ch_no]
+    k_mat = self._image_cap[:, :, ch_no]
+    return ssim(i_mat, k_mat)
 
 
 class QualityMeasurementSSIM(QualityMeasurementBase):
-    def __init__(self, img_loader_ref, img_loader_cap):
-      super(QualityMeasurementSSIM,self).__init__(img_loader_ref, img_loader_cap)
-    def process(self):
-     I = self._image_ref
-     K = self._image_cap
-     return ssim(I,K,multichannel=True)
+  def __init__(self, img_loader_ref, img_loader_cap):
+    QualityMeasurementBase.__init__(self, img_loader_ref, img_loader_cap)
+  def process(self):
+    i_mat = self._image_ref
+    k_mat = self._image_cap
+    return ssim(i_mat, k_mat, multichannel=True)
 
 
 class QualityMeasurementPSNR(QualityMeasurementBase):
   def __init__(self, img_loader_ref, img_loader_cap):
-      super(QualityMeasurementPSNR,self).__init__(img_loader_ref, img_loader_cap)
+    QualityMeasurementBase.__init__(self, img_loader_ref, img_loader_cap)
   def process(self):
-     I = self._image_ref.astype(float)
-     K = self._image_cap.astype(float)
-     MSE = np.sum(np.square(I - K))/float(I.shape[0]*I.shape[1])/3.0
-     if(MSE == 0):
-         return np.inf
-     MAXvalue = 255#for 8 bits
-     return 10 * np.log10((np.square(MAXvalue))/MSE)
+    i_mat = self._image_ref.astype(float)
+    k_mat = self._image_cap.astype(float)
+    mean_square_error = np.sum(np.square(i_mat - k_mat))/float(i_mat.shape[0]*i_mat.shape[1])/3.0
+    if mean_square_error == 0:
+      return np.inf
+    channel_max_value = 255 #for 8 bits channel depth
+    return 10 * np.log10((np.square(channel_max_value))/mean_square_error)

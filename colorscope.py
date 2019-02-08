@@ -18,6 +18,38 @@ def parse_video_size_arg(video_size):
   return None
 
 
+def is_metric_name_correct(given_metrics):
+  list_of_metrics_names = ["ssim", "psnr"]
+  if given_metrics in list_of_metrics_names:
+    return True
+  return False
+
+def process_mulitchannel_compare(multichannel_args):
+  [metric,
+   ref_img_dir, ref_pxl_fmt, ref_vd_sz,
+   cap_img_dir, cap_pxl_fmt, cap_vd_sz] = multichannel_args
+  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, ref_vd_sz)
+  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, cap_vd_sz)
+  if not is_metric_name_correct(metric):
+    return (False, 0.0)
+  return(True,
+         ip.qualitymeasurement.QualityMeasurement.
+         create(img_load_ref, img_load_cap, metric).process())
+
+
+def process_singlechannel_compare(singlechannel_args):
+  [metric, channel_no,
+      ref_img_dir, ref_pxl_fmt, ref_vd_sz,
+      cap_img_dir, cap_pxl_fmt, cap_vd_sz] = singlechannel_args
+  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, ref_vd_sz)
+  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, cap_vd_sz)
+  if not is_metric_name_correct(metric):
+    return (False, 0.0)
+  return(True,
+         ip.qualitymeasurement.QualityMeasurement.
+         create(img_load_ref, img_load_cap, metric + "-sc").process(int(channel_no)))
+
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -76,19 +108,19 @@ def main():
   )
 
   parser.add_argument(
-  '-cp',
-  '--compare',
-  type=str,
-  nargs=7,
-  help='compare two images using given metrics',
+      '-cp',
+      '--compare',
+      type=str,
+      nargs=7,
+      help='compare two images using given metrics'
   )
 
   parser.add_argument(
-  '-scp',
-  '--compare_singlechannel',
-  type=str,
-  nargs=8,
-  help='compare two images using given metrics for given channel',
+      '-scp',
+      '--compare_singlechannel',
+      type=str,
+      nargs=8,
+      help='compare two images using given metrics for given channel'
   )
 
   args = parser.parse_args()
@@ -100,27 +132,24 @@ def main():
   img_file = args.imgfile
   out_json_file = args.out
   gen_graph_filenames = args.gen_graph
-  compare_multichannel= args.compare
-  compare_singlechannel= args.compare_singlechannel
+  compare_multichannel = args.compare
+  compare_singlechannel = args.compare_singlechannel
 
-  #colorscope -compare metrics [channelId] refImageDir [ref_pixel_format] [ref_video_size] capImageDir [cap_pixel_format] [cap_video_size]
+  #colorscope -compare metrics [channelId] refImageDir [ref_pixel_format] \
+  #[ref_video_size] capImageDir [cap_pixel_format] [cap_video_size]
   if compare_multichannel:
-   metric, refImgDir, refPxlFmt, refVSz, capImgDir, capPxlFmt, capVSz  = compare_multichannel
-   image_loaderRef = ip.imgloader.create(refImgDir, refPxlFmt, refVSz)
-   image_loaderCap = ip.imgloader.create(capImgDir, capPxlFmt, capVSz)
-   if(metric != 'ssim' and metric != 'psnr'):
-      sys.exit('Unknown metric: {}'.format(metric))
-   print(ip.qualitymeasurement.QualityMeasurement.create(image_loaderRef,image_loaderCap,metric).process())
-   sys.exit(0)
+    result, metric_value = process_mulitchannel_compare(compare_multichannel)
+    if result is True:
+      print(metric_value)
+      sys.exit(0)
+    sys.exit('Compare finished unsucessfuly for given metric.')
 
   if compare_singlechannel:
-   metric, channelNo, refImgDir, refPxlFmt, refVSz, capImgDir, capPxlFmt, capVSz  = compare_singlechannel
-   image_loaderRef = ip.imgloader.create(refImgDir, refPxlFmt, refVSz)
-   image_loaderCap = ip.imgloader.create(capImgDir, capPxlFmt, capVSz)
-   if(metric != 'ssim' and metric != 'psnr'):
-      sys.exit('Unknown metric: {}'.format(metric))
-   print(ip.qualitymeasurement.QualityMeasurement.create(image_loaderRef,image_loaderCap,metric+'-sc').process(int(channelNo)))
-   sys.exit(0)
+    result, metric_value = process_singlechannel_compare(compare_singlechannel)
+    if result is True:
+      print(metric_value)
+      sys.exit(0)
+    sys.exit('Compare finished unsucessfuly for given metric.')
 
   if gen_graph_filenames != '':
     ref_json, cap_json = gen_graph_filenames
@@ -133,6 +162,7 @@ def main():
 
   if not os.path.exists(img_file):
     sys.exit('File not found')
+
 
   image_loader = ip.imgloader.create(img_file, pixel_format, video_size)
 

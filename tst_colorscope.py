@@ -9,6 +9,7 @@ from numpy import inf
 import cv2
 import ip
 # pylint: disable=unused-import
+# pylint: disable=too-many-locals
 import colorscope
 
 def fake_xwindow_supported():

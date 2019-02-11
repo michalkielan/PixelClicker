@@ -2,12 +2,10 @@ import unittest
 import threading
 import os
 import sys
-import subprocess
 from time import sleep
 import matplotlib.pyplot as plt
 from PIL import Image
 from numpy import inf
-import shlex
 import cv2
 import ip
 
@@ -819,11 +817,7 @@ class TestColorscope(unittest.TestCase):
     if is_windows():
       exe = '%PYTHON%\\python.exe '
     else:
-      exe = 'python3'
-
-    print("SHELL quotes test")
-    self.assertEqual(0,os.system(exe + ' colorscope.py -cp ssim  res/test_img/lena.png ' + shlex.quote('') + ' ' + shlex.quote('') + ' res/test_img/lena50.jpg ' + shlex.quote('') + ' ' + shlex.quote('') ))
-
+      exe = 'python3 '
     self.assertEqual(0, os.system(exe + ' colorscope.py -h'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i invalid.png'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py -i red.png -out_fmt=invalid'))
@@ -833,11 +827,11 @@ class TestColorscope(unittest.TestCase):
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile invalid.png'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile \
         red.png --output_format=invalid'))
-    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile'))
-    #self.assertEqual(0,subprocess.call((exe + ' colorscope.py -cp ssim  res/test_img/lena.png ' + shlex.quote('') + ' ' + shlex.quote('') + ' res/test_img/lena50.jpg' )))
-    self.assertEqual(0,subprocess.call(shlex.split(exe + ' colorscope.py -scp ssim 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\'')))
-    self.assertEqual(0,subprocess.call(shlex.split(exe + ' colorscope.py -cp psnr res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\'')))
-    self.assertEqual(0,subprocess.call(shlex.split(exe + ' colorscope.py -scp psnr 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\'')))
+    self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile '))
+    self.assertEqual(0,os.system(exe + ' colorscope.py -cp ssim  res/test_img/lena.png \"\" \"\" res/test_img/lena50.jpg \"\" \"\"'))
+    self.assertEqual(0,os.system(exe + ' colorscope.py -scp ssim 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + ' colorscope.py -cp psnr res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + ' colorscope.py -scp psnr 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
 
 class TestQualitymeasures(unittest.TestCase):
   img_res_id = 'res/test_img/'
@@ -906,7 +900,7 @@ class TestQualitymeasures(unittest.TestCase):
                  .process(ip.qualitymeasurement.ChannelsRGB.red)
 
     self.assertAlmostEqual(ssim50_blue, 0.7538, delta=0.02)
-    self.assertAlmostEqual(ssim50_green, 0.8768, delta=0.02)
+    self.assertAlmostEqual(ssim50_green, 0.8768, delta=0.0)
     self.assertAlmostEqual(ssim50_red, 0.8754, delta=0.02)
 
   def test_psnr_singlechannel_rgb(self):

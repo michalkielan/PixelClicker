@@ -828,7 +828,7 @@ class TestColorscope(unittest.TestCase):
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile \
         red.png --output_format=invalid'))
     self.assertNotEqual(0, os.system(exe + ' colorscope.py --imgfile '))
-    self.assertEqual(0,os.system(exe + ' colorscope.py -cp ssim  res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
+    self.assertEqual(0,os.system(exe + ' colorscope.py -cp ssim  res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\' '))
     self.assertEqual(0,os.system(exe + ' colorscope.py -scp ssim 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
     self.assertEqual(0,os.system(exe + ' colorscope.py -cp psnr res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))
     self.assertEqual(0,os.system(exe + ' colorscope.py -scp psnr 0 res/test_img/lena.png \'\' \'\' res/test_img/lena50.jpg \'\' \'\''))

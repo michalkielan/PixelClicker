@@ -29,8 +29,10 @@ def process_mulitchannel_compare(multichannel_args):
   [metric,
    ref_img_dir, ref_pxl_fmt, ref_vd_sz,
    cap_img_dir, cap_pxl_fmt, cap_vd_sz] = multichannel_args
-  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, ref_vd_sz)
-  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, cap_vd_sz)
+  video_size_ref = parse_video_size_arg(ref_vd_sz)
+  video_size_cap = parse_video_size_arg(cap_vd_sz)
+  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, video_size_ref)
+  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, video_size_cap)
   if not is_metric_name_correct(metric):
     return (False, 0.0)
   return(True,
@@ -42,8 +44,10 @@ def process_singlechannel_compare(singlechannel_args):
   [metric, channel_no,
       ref_img_dir, ref_pxl_fmt, ref_vd_sz,
       cap_img_dir, cap_pxl_fmt, cap_vd_sz] = singlechannel_args
-  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, ref_vd_sz)
-  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, cap_vd_sz)
+  video_size_ref = parse_video_size_arg(ref_vd_sz)
+  video_size_cap = parse_video_size_arg(cap_vd_sz)
+  img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, video_size_ref)
+  img_load_cap = ip.imgloader.create(cap_img_dir, cap_pxl_fmt, video_size_cap)
   if not is_metric_name_correct(metric):
     return (False, 0.0)
   return(True,
@@ -124,6 +128,7 @@ def main():
       help='compare two images using given metrics for given channel'
   )
 
+  print(sys.argv[1:])
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()

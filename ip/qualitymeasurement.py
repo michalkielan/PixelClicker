@@ -10,6 +10,11 @@ class ChannelsRGB(IntEnum):
   green = 1
   blue = 0
 
+class ChannelsYUV(intEnum)
+  Y = 0
+  U = 0
+  V = 0
+
 class  QualityMeasurement(metaclass=abc.ABCMeta):
   @staticmethod
   def create(img_loader_ref, img_loader_cap, measurement_method=''):

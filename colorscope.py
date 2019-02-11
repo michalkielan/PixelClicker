@@ -128,6 +128,7 @@ def main():
       help='compare two images using given metrics for given channel'
   )
 
+  #DEBUG ONLY print
   print(sys.argv[1:])
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()

@@ -10,7 +10,7 @@ class ChannelsRGB(IntEnum):
   green = 1
   blue = 0
 
-class ChannelsYUV(intEnum)
+class ChannelsYUV(IntEnum):
   Y = 0
   U = 0
   V = 0

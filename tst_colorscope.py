@@ -900,7 +900,7 @@ class TestQualitymeasures(unittest.TestCase):
                  .process(ip.qualitymeasurement.ChannelsRGB.red)
 
     self.assertAlmostEqual(ssim50_blue, 0.7538, delta=0.02)
-    self.assertAlmostEqual(ssim50_green, 0.8768, delta=0.0)
+    self.assertAlmostEqual(ssim50_green, 0.8768, delta=0.02)
     self.assertAlmostEqual(ssim50_red, 0.8754, delta=0.02)
 
   def test_psnr_singlechannel_rgb(self):

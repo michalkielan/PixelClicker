@@ -13,6 +13,14 @@ class ImageLoader(metaclass=abc.ABCMeta):
 
   @staticmethod
   def create(img_filename, pixel_format='', size=None):
+
+    #DEBUG PURPOSE ONLY
+    if pixel_format:
+       print('ascii codes for pixel_format: {}: [{}]'.format(pixel_format, ord(pixel_format)))
+    else:
+       print('pixel_format string is empty')
+    #END OF DEBUG PURPOSE
+
     if pixel_format == 'nv21':
       return ImageLoaderRawNV21(img_filename, size)
     if pixel_format == 'nv12':

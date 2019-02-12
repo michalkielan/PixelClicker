@@ -128,8 +128,6 @@ def main():
       help='compare two images using given metrics for given channel'
   )
 
-  #DEBUG ONLY print
-  print(sys.argv[1:])
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()
@@ -169,7 +167,6 @@ def main():
 
   if not os.path.exists(img_file):
     sys.exit('File not found')
-
 
   image_loader = ip.imgloader.create(img_file, pixel_format, video_size)
 

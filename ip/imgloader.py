@@ -17,6 +17,8 @@ class ImageLoader(metaclass=abc.ABCMeta):
       return ImageLoaderRawNV21(img_filename, size)
     if pixel_format == 'nv12':
       return ImageLoaderRawNV12(img_filename, size)
+    if pixel_format == 'i420':
+      return ImageLoaderRawI420(img_filename, size)
     if pixel_format == '':
       return ImageLoaderDefault(img_filename)
     raise AttributeError('image_loader_factory: ' + pixel_format + ' not found')
@@ -66,6 +68,12 @@ class ImageLoaderRawNV12(ImageLoaderRawNV21):
   def get_native_channels(self):
     bgr_converted_yuv = self.imread()
     return  cv2.cvtColor(bgr_converted_yuv, cv2.COLOR_BGR2YUV)
+
+class ImageLoaderRawI420(ImageLoaderRawNV21):
+  def imread(self):
+    raw_img = self._read_raw()
+    return cv2.cvtColor(raw_img, cv2.COLOR_YUV2BGR_I420)
+
 
 def create(img_filename, pixel_format='', size=None):
   return ImageLoader.create(img_filename, pixel_format, size)

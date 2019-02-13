@@ -14,8 +14,8 @@ class ChannelsRGB(IntEnum):
 
 class ChannelsYUV(IntEnum):
   Y = 0
-  U = 0
-  V = 0
+  U = 1
+  V = 2
 
 
 class  QualityMeasurement(metaclass=abc.ABCMeta):
@@ -32,8 +32,8 @@ class  QualityMeasurement(metaclass=abc.ABCMeta):
     raise AttributeError('quality_measure_factory method {} not found'.format(measurement_method))
 
   def __init__(self, img_loader_ref, img_loader_cap):
-    self._image_ref = img_loader_ref.imread()
-    self._image_cap = img_loader_cap.imread()
+    self._image_ref = img_loader_ref.get_native_channels()
+    self._image_cap = img_loader_cap.get_native_channels()
     if self._image_ref is None or self._image_cap is None:
       raise AttributeError('Incorrect input data files')
     if self._image_ref.shape != self._image_cap.shape:

@@ -26,9 +26,15 @@ def is_metric_name_correct(given_metrics):
   return False
 
 def process_mulitchannel_compare(multichannel_args):
-  [metric,
-   ref_img_dir, ref_pxl_fmt, ref_vd_sz,
-   cap_img_dir, cap_pxl_fmt, cap_vd_sz] = multichannel_args
+  if len(multichannel_args) == 7:
+    [metric,
+     ref_img_dir, ref_pxl_fmt, ref_vd_sz,
+     cap_img_dir, cap_pxl_fmt, cap_vd_sz] = multichannel_args
+  elif len(multichannel_args) == 3:
+    [metric, ref_img_dir, cap_img_dir] = multichannel_args
+    ref_pxl_fmt = ref_vd_sz = cap_pxl_fmt = cap_vd_sz = ''
+  else:
+    return (False, 0.0)
   video_size_ref = parse_video_size_arg(ref_vd_sz)
   video_size_cap = parse_video_size_arg(cap_vd_sz)
   img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, video_size_ref)
@@ -41,9 +47,15 @@ def process_mulitchannel_compare(multichannel_args):
 
 
 def process_singlechannel_compare(singlechannel_args):
-  [metric, channel_no,
-      ref_img_dir, ref_pxl_fmt, ref_vd_sz,
-      cap_img_dir, cap_pxl_fmt, cap_vd_sz] = singlechannel_args
+  if len(singlechannel_args) == 8:
+    [metric, channel_no,
+     ref_img_dir, ref_pxl_fmt, ref_vd_sz,
+     cap_img_dir, cap_pxl_fmt, cap_vd_sz] = singlechannel_args
+  elif len(singlechannel_args) == 4:
+    [metric, channel_no, ref_img_dir, cap_img_dir] = singlechannel_args
+    ref_pxl_fmt = ref_vd_sz = cap_pxl_fmt = cap_vd_sz = ''
+  else:
+    return (False, 0.0)
   video_size_ref = parse_video_size_arg(ref_vd_sz)
   video_size_cap = parse_video_size_arg(cap_vd_sz)
   img_load_ref = ip.imgloader.create(ref_img_dir, ref_pxl_fmt, video_size_ref)
@@ -116,7 +128,8 @@ def main():
       '-cp',
       '--compare',
       type=str,
-      nargs=7,
+      nargs='+',
+      #nargs=7,
       help='compare two images using given metrics'
   )
 
@@ -124,7 +137,7 @@ def main():
       '-scp',
       '--compare_singlechannel',
       type=str,
-      nargs=8,
+      nargs='+',
       help='compare two images using given metrics for given channel'
   )
 
@@ -167,6 +180,7 @@ def main():
 
   if not os.path.exists(img_file):
     sys.exit('File not found')
+
 
   image_loader = ip.imgloader.create(img_file, pixel_format, video_size)
 

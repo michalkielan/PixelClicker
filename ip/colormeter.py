@@ -2,7 +2,16 @@
 """Calculate color paramters"""
 
 import numpy as np
+import matplotlib.pyplot as plt
 
+
+def plot_hist(img):
+  plt.hist(img.flatten(), 256, [0, 256], color='r')
+  plt.xlim([0, 256])
+  plt.title('Histogram')
+  plt.xlabel('Color value')
+  plt.ylabel('Frequency')
+  plt.show()
 
 class ColorMeter:
   def __init__(self, ref_color, cap_color):

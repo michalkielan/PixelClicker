@@ -141,6 +141,14 @@ def main():
       help='compare two images using given metrics for given channel'
   )
 
+  parser.add_argument(
+      '-hist',
+      '--histogram',
+      type=str,
+      nargs='+',
+      help='plot histogram'
+  )
+
   args = parser.parse_args()
   pixel_format = args.pixel_format.lower()
   output_format = args.output_format.lower()
@@ -152,6 +160,13 @@ def main():
   gen_graph_filenames = args.gen_graph
   compare_multichannel = args.compare
   compare_singlechannel = args.compare_singlechannel
+
+  if args.histogram:
+    img_file = args.histogram[0]
+    img_loader = ip.imgloader.create(img_file, pixel_format, video_size)
+    img = img_loader.imread()
+    ip.colormeter.plot_hist(img)
+    sys.exit(0)
 
   #colorscope -compare metrics [channelId] refImageDir [ref_pixel_format] \
   #[ref_video_size] capImageDir [cap_pixel_format] [cap_video_size]
